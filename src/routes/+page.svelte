@@ -1,7 +1,7 @@
 <script>
     import { client } from '../sanityClient';
     import { onMount } from 'svelte';
-
+let x =null;
     let survey = null;
 
     onMount(async () => {
