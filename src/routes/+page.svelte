@@ -1,17 +1,21 @@
 <script>
     import { client } from '../sanityClient';
     import { onMount } from 'svelte';
-let x =null;
-    let survey = null;
 
+    let survey = null;
+    let name = '';
+    let email = '';
+    let responses = {};
+    let showSignUpModal = false;
+    let showLoginModal = false;
+
+    let username = '';
+    let password = '';
+    let user_id = null;
     onMount(async () => {
         const query = `*[_type == "survey"]{title, questions}`;
         survey = await client.fetch(query);
     });
-
-    let name = '';
-    let email = '';
-    let responses = {};
 
     function handleSubmit() {
         console.log({
@@ -21,34 +25,185 @@ let x =null;
         });
         // Add logic to handle form submission, e.g., sending data to a server
     }
+
+    function toggleSignUpModal() {
+        showSignUpModal = !showSignUpModal;
+    }
+
+    function toggleLoginModal() {
+        showLoginModal = !showLoginModal;
+    }
+
+    async function handlesignup(event) {
+        event.preventDefault();
+        try {
+            const response = await fetch('http://localhost:5000/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Registration successful', data);
+                // Optionally close modal or reset fields
+            } else {
+                console.error('Registration Error:', data.error);
+            }
+        } catch (error) {
+            console.error('Registration Error:', error);
+        }
+    }
+
+
+    async function handleLogin(event) {
+        event.preventDefault();
+
+        try {
+            const response = await fetch('http://localhost:5000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Login successful');
+                user_id = data.user_id; // Update user_id with the received value
+
+            } else {
+                console.error('Login Error:', data.error);
+            }
+        } catch (error) {
+            console.error('Login Error:', error);
+        }
+    }
 </script>
+
+<header class="bg-gray-800 p-4">
+    <nav class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="text-white text-lg font-bold">Survey App</div>
+        <ul class="flex space-x-6">
+            <li><a href="/" class="text-gray-300 hover:text-white">Home</a></li>
+            <li><a href="/about" class="text-gray-300 hover:text-white">About</a></li>
+            <li><a href="/contact" class="text-gray-300 hover:text-white">Contact</a></li>
+        </ul>
+        <div>
+            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-md ml-4" on:click={toggleLoginModal}>Login</button>
+        </div>
+    </nav>
+</header>
+
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .modal-header {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .question-container {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background-color: #f7fafc;
+    }
+
+    .question-text {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+</style>
+<!-- Sign Up Modal -->
+{#if showSignUpModal}
+    <div class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Sign Up</div>
+            <form on:submit|preventDefault={handlesignup}>
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input id="username" type="text" bind:value={username} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                </div>
+
+                <div class="mt-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input id="password" type="password" bind:value={password} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                </div>
+
+                <div class="mt-6 flex justify-between">
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md" on:click={toggleSignUpModal}>Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md">Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{/if}
+
+
+<!-- Login Modal -->
+{#if showLoginModal}
+    <div class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Login</div>
+            <form on:submit|preventDefault={handleLogin}>
+                <div>
+                    <label for="login-username" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input id="login-username" type="email" bind:value={username} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                </div>
+
+                <div class="mt-4">
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input id="login-password" type="password" bind:value={password} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                </div>
+
+                <div class="mt-6 flex justify-between">
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md" on:click={toggleLoginModal}>Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{/if}
 
 {#if survey}
     <main class="p-4 max-w-lg mx-auto">
-        <h1 class="text-2xl font-bold mb-4">{survey[0].title}</h1>
         <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                <input id="name" type="text" bind:value={name} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
-            </div>
-
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input id="email" type="email" bind:value={email} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
-            </div>
-
             {#each survey[0].questions as question}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">{question.text}</label>
+                <div class="question-container">
+                    <div class="question-text">{question.text}</div>
                     {#if question.type === 'short'}
-                        <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
+                        <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
                     {:else if question.type === 'long'}
-                        <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"></textarea>
+                        <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your detailed answer" required></textarea>
                     {:else if question.type === 'multiple'}
                         {#each question.options as option}
-                            <div>
-                                <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} />
-                                <label for={option} class="ml-2">{option}</label>
+                            <div class="flex items-center mt-2">
+                                <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} class="mr-2" />
+                                <label for={option} class="text-sm text-gray-700">{option}</label>
                             </div>
                         {/each}
                     {/if}
