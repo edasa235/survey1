@@ -8,6 +8,7 @@
     let responses = {};
     let showSignUpModal = false;
     let showLoginModal = false;
+    let isloggedin = false;
 
     let username = '';
     let password = '';
@@ -17,6 +18,12 @@
         survey = await client.fetch(query);
     });
 
+    onMount(async () =>{
+        if (isloggedin= false) {
+            const query = `*[_type == "survey"]{title, questions}`;
+            survey = await client.fetch(query);
+        }
+    })
     function handleSubmit() {
         console.log({
             name,
@@ -73,6 +80,19 @@
                 console.log('Login successful');
                 user_id = data.user_id; // Update user_id with the received value
 
+                // Close the login modal
+                isloggedin = true;
+                showLoginModal = false; // Close the login modal
+
+                // Fetch the survey data after logging in
+                survey = await client.fetch(`*[_type == "survey"]{title, questions}`);
+
+                // Show a confirmation message
+                alert("Login successful!");
+
+                // Show a confirmation message (you could create a state for it)
+                alert("Login successful!");
+
             } else {
                 console.error('Login Error:', data.error);
             }
@@ -80,6 +100,7 @@
             console.error('Login Error:', error);
         }
     }
+
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -171,8 +192,8 @@
             <div class="modal-header">Login</div>
             <form on:submit|preventDefault={handleLogin}>
                 <div>
-                    <label for="login-username" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input id="login-username" type="email" bind:value={username} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input id="username" type="text" bind:value={username} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
                 </div>
 
                 <div class="mt-4">
@@ -188,7 +209,6 @@
         </div>
     </div>
 {/if}
-
 {#if survey}
     <main class="p-4 max-w-lg mx-auto">
         <form on:submit|preventDefault={handleSubmit} class="space-y-4">

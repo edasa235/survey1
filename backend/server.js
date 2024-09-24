@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // MySQL connection configuration
 const dbConfig = {
@@ -15,13 +15,16 @@ const dbConfig = {
 };
 
 const app = express();
-app.use(cors());
+
+// Make sure CORS is configured here, after defining `app`
+app.use(cors({ origin: 'http://localhost:5173' })); // Allow your SvelteKit frontend
 app.use(bodyParser.json());
 
 // Function to establish a database connection
 async function getConnection() {
 	return await mysql.createConnection(dbConfig);
 }
+
 app.post('/register', async (req, res) => {
 	const { username, password } = req.body;
 	try {
@@ -40,6 +43,7 @@ app.post('/register', async (req, res) => {
 		res.status(500).json({ error: 'Registration failed' });
 	}
 });
+
 app.post('/login', async (req, res) => {
 	const { username, password } = req.body;
 	try {
@@ -62,7 +66,6 @@ app.post('/login', async (req, res) => {
 		res.status(500).json({ error: 'Login failed' });
 	}
 });
-
 
 app.listen(port, () => {
 	console.log(`Server running on port ${port}`);
