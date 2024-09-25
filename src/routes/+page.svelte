@@ -16,14 +16,9 @@
     onMount(async () => {
         const query = `*[_type == "survey"]{title, questions}`;
         survey = await client.fetch(query);
+        console.log(survey); // Check if the questions array has multiple items
     });
 
-    onMount(async () =>{
-        if (isloggedin= false) {
-            const query = `*[_type == "survey"]{title, questions}`;
-            survey = await client.fetch(query);
-        }
-    })
     function handleSubmit() {
         console.log({
             name,
@@ -208,26 +203,27 @@
             </form>
         </div>
     </div>
-{/if}
-{#if survey}
+{/if}{#if survey}
     <main class="p-4 max-w-lg mx-auto">
         <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-            {#each survey[0].questions as question}
-                <div class="question-container">
-                    <div class="question-text">{question.text}</div>
-                    {#if question.type === 'short'}
-                        <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
-                    {:else if question.type === 'long'}
-                        <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your detailed answer" required></textarea>
-                    {:else if question.type === 'multiple'}
-                        {#each question.options as option}
-                            <div class="flex items-center mt-2">
-                                <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} class="mr-2" />
-                                <label for={option} class="text-sm text-gray-700">{option}</label>
-                            </div>
-                        {/each}
-                    {/if}
-                </div>
+            {#each survey as singleSurvey}
+                {#each singleSurvey.questions as question}
+                    <div class="question-container">
+                        <div class="question-text">{question.text}</div>
+                        {#if question.type === 'short'}
+                            <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
+                        {:else if question.type === 'long'}
+                            <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your detailed answer" required></textarea>
+                        {:else if question.type === 'multiple'}
+                            {#each question.options as option}
+                                <div class="flex items-center mt-2">
+                                    <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} class="mr-2" />
+                                    <label for={option} class="text-sm text-gray-700">{option}</label>
+                                </div>
+                            {/each}
+                        {/if}
+                    </div>
+                {/each}
             {/each}
 
             <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Submit</button>
