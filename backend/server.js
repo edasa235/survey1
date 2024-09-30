@@ -25,6 +25,31 @@ async function getConnection() {
 	return await mysql.createConnection(dbConfig);
 }
 
+// Webhook handler for Sanity
+app.post('/sanity-webhook', async (req, res) => {
+	const questionData = req.body; // Get the payload from Sanity
+	const { text, type, options } = questionData;
+
+	// Check if this is a question object
+	if (questionData._type === 'question') {
+		try {
+			const connection = await getConnection();
+			const sql = `INSERT INTO questions (question_text) VALUES (?)`;
+			const [result] = await connection.execute(sql, [text]);
+			await connection.end();
+
+			console.log('Question saved to database with ID:', result.insertId);
+			res.status(200).send('Success');
+		} catch (err) {
+			console.error('Error saving question to database:', err);
+			return res.status(500).send('Internal Server Error');
+		}
+	} else {
+		res.status(400).send('Not a question object');
+	}
+});
+
+// Registration endpoint
 app.post('/register', async (req, res) => {
 	const { username, password } = req.body;
 	try {
@@ -44,6 +69,7 @@ app.post('/register', async (req, res) => {
 	}
 });
 
+// Login endpoint
 app.post('/login', async (req, res) => {
 	const { username, password } = req.body;
 	try {
