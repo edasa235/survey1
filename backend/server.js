@@ -14,7 +14,7 @@ const dbConfig = {
 	database: 'user_db', // Your database name
 };
 
-const app = express();
+const app =  express();
 
 // Make sure CORS is configured here, after defining `app`
 app.use(cors({ origin: 'http://localhost:5173' })); // Allow your SvelteKit frontend
@@ -22,30 +22,44 @@ app.use(bodyParser.json());
 
 // Function to establish a database connection
 async function getConnection() {
-	return await mysql.createConnection(dbConfig);
+	return mysql.createConnection(dbConfig);
 }
-
-// Webhook handler for Sanity
 app.post('/sanity-webhook', async (req, res) => {
-	const questionData = req.body; // Get the payload from Sanity
-	const { text, type, options } = questionData;
+	const { _id, _type, text, type, options, operationType } = req.body; // Get the question data from the webhook
+	const connection = await getConnection();
 
-	// Check if this is a question object
-	if (questionData._type === 'question') {
-		try {
-			const connection = await getConnection();
-			const sql = `INSERT INTO questions (question_text) VALUES (?)`;
-			const [result] = await connection.execute(sql, [text]);
-			await connection.end();
-
-			console.log('Question saved to database with ID:', result.insertId);
-			res.status(200).send('Success');
-		} catch (err) {
-			console.error('Error saving question to database:', err);
-			return res.status(500).send('Internal Server Error');
+	try {
+		if (_type === 'question') {
+			if (operationType === 'create') {
+				// Insert new question into the database
+				await connection.execute(
+					'INSERT INTO questions (id, text, type, options) VALUES (?, ?, ?, ?)',
+					[_id, text, type, JSON.stringify(options || [])]
+				);
+				res.status(200).json({ message: 'Question created successfully' });
+			} else if (operationType === 'update') {
+				// Update existing question in the database
+				await connection.execute(
+					'UPDATE questions SET text = ?, type = ?, options = ? WHERE id = ?',
+					[text, type, JSON.stringify(options || []), _id]
+				);
+				res.status(200).json({ message: 'Question updated successfully' });
+			} else if (operationType === 'delete') {
+				// Delete question from the database
+				await connection.execute(
+					'DELETE FROM questions WHERE id = ?',
+					[_id]
+				);
+				res.status(200).json({ message: 'Question deleted successfully' });
+			}
+		} else {
+			res.status(400).json({ message: 'Invalid document type' });
 		}
-	} else {
-		res.status(400).send('Not a question object');
+	} catch (error) {
+		console.error('Error processing webhook:', error);
+		res.status(500).json({ error: 'Failed to process webhook' });
+	} finally {
+		await connection.end();
 	}
 });
 
