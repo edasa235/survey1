@@ -6,10 +6,12 @@ import bcrypt from 'bcrypt';
 import sanityClient from '@sanity/client';
 
 
+
 const host = 'localhost';
 const user = 'root';
 const dbPass = '06Jia_Xiong';
 const port = 3000;
+
 const database = 'user_db';
 
 const projectId = 'scr4fyl4';
@@ -40,12 +42,18 @@ app.get('/', (req, res) => {
 
 // Function to establish a database connection
 async function getConnection() {
-	return mysql.createConnection(dbConfig);
+	try {
+		return await mysql.createConnection(dbConfig);
+	} catch (error) {
+		console.error('Database connection error:', error);
+		throw error;
+	}
 }
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
 	const { username, password } = req.body;
+	console.log('Registration attempt:', { username, password }); // Debugging line
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const connection = await getConnection();
@@ -56,6 +64,7 @@ app.post('/register', async (req, res) => {
 		);
 		await connection.end();
 
+		console.log('Registration successful:', result); // Debugging line
 		res.status(201).json({ user_id: result.insertId, username });
 	} catch (error) {
 		console.error('Registration Error:', error);
@@ -66,6 +75,7 @@ app.post('/register', async (req, res) => {
 // Login endpoint
 app.post('/login', async (req, res) => {
 	const { username, password } = req.body;
+	console.log('Login attempt:', { username, password }); // Debugging line
 	try {
 		const connection = await getConnection();
 		const [rows] = await connection.execute('SELECT * FROM users WHERE username = ?', [username]);
@@ -73,12 +83,16 @@ app.post('/login', async (req, res) => {
 
 		if (rows.length > 0) {
 			const user = rows[0];
-			if (await bcrypt.compare(password, user.password)) {
+			const isMatch = await bcrypt.compare(password, user.password);
+			console.log('Password match:', isMatch); // Debugging line
+			if (isMatch) {
 				res.status(200).json({ user_id: user.user_id });
 			} else {
+				console.log('Invalid password for user:', username); // Debugging line
 				res.status(401).json({ error: 'Invalid username or password' });
 			}
 		} else {
+			console.log('No user found with username:', username); // Debugging line
 			res.status(401).json({ error: 'Invalid username or password' });
 		}
 	} catch (error) {
@@ -86,7 +100,6 @@ app.post('/login', async (req, res) => {
 		res.status(500).json({ error: 'Login failed' });
 	}
 });
-
 // Initialize Sanity client using environment variables
 const sanity = sanityClient({
 	projectId: projectId,
@@ -95,39 +108,47 @@ const sanity = sanityClient({
 	token: token,
 	useCdn: useCdn,
 });// Update the pollSanityData function to return fetched questions
-
 async function pollSanityData() {
 	try {
-		const query = '*[_type == "survey"] { questions }'; // Fetch surveys with questions
+		const query = '*[_type == "survey"] { _id, title, questions }';
 		const surveys = await sanity.fetch(query);
-		console.log('Fetched surveys from Sanity:', JSON.stringify(surveys, null, 2)); // Detailed logging
+		console.log('Fetched surveys from Sanity:', JSON.stringify(surveys, null, 2));
 
 		const connection = await getConnection();
-		const insertedQuestions = []; // To store the details of inserted questions
 
 		for (const survey of surveys) {
-			for (const question of survey.questions) {
-				console.log('Question object:', question); // Log each question object
+			const surveyId = survey._id; // Capture survey ID
+			const surveyTitle = survey.title; // Capture survey title
 
-				// Check if text and _id exist
-				if (question.text !== undefined && question._id !== undefined) {
+			// Insert or update the survey in the database
+			await connection.execute(
+				`INSERT INTO surveys (survey_id, title)
+         VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE title = VALUES(title)`,
+				[surveyId, surveyTitle]
+			);
+			console.log(`Survey ${surveyId} inserted/updated`);
+
+			for (const question of survey.questions) {
+				// Update this part to check for `_key` instead of `_id`
+				if (question.text !== undefined && question._key !== undefined) {
 					await connection.execute(
-						'INSERT INTO questions (question_text, _id) VALUES (?, ?) ON DUPLICATE KEY UPDATE question_text = VALUES(question_text)',
-						[question.text, question._id]
+						`INSERT INTO questions (question_id, survey_id, question_text)
+             VALUES (?, ?, ?)
+                 ON DUPLICATE KEY UPDATE question_text = VALUES(question_text)`,
+						[question._key, surveyId, question.text] // Use question._key here
 					);
-					console.log(`Question ${question._id} inserted/updated`);
-					insertedQuestions.push({ id: question._id, text: question.text }); // Store inserted questions
+					console.log(`Question ${question._key} inserted/updated for survey ${surveyId}`);
 				} else {
-					console.error('Question missing text or _id:', question);
+					console.error('Question missing text or _key:', question);
 				}
 			}
 		}
 
 		await connection.end();
-		return insertedQuestions; // Return the inserted questions
 	} catch (error) {
-		console.error('Error fetching questions from Sanity:', error);
-		throw error; // Rethrow the error for handling in the endpoint
+		console.error('Error fetching and inserting data from Sanity:', error);
+		throw error;
 	}
 }
 
@@ -151,7 +172,7 @@ setInterval(() => {
 	pollSanityData()
 		.then(() => console.log("Polling successful"))
 		.catch((error) => console.error("Polling failed", error));
-}, 300000); // 5 minutes in milliseconds
+}, 50000); // 1 minutes in milliseconds
 
 // Initial poll at server startup
 pollSanityData()
@@ -162,4 +183,14 @@ pollSanityData()
 app.listen(port, () => {
 	console.log(`Server running on port ${port}`);
 });
-// Create a route to manually trigger the polling
+// Create a route to manually trigger the update
+app.get('/update', async (req, res) => {
+	try {
+		// Call the function to fetch and update data from Sanity
+		await pollSanityData();
+		res.status(200).json({ message: "Data update successful" });
+	} catch (error) {
+		console.error('Error during manual update:', error);
+		res.status(500).json({ error: 'Manual update failed' });
+	}
+});

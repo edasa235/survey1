@@ -1017,7 +1017,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </schema>
     <schema id="295" parent="1" name="user_db">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-10-01.07:29:35</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-10-04.12:44:50</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="296" parent="1" name="world">
@@ -1042,11 +1042,11 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Host>localhost</Host>
       <Plugin>caching_sha2_password</Plugin>
     </user>
-    <table id="301" parent="295" name="answers">
+    <table id="301" parent="295" name="questions">
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
-    <table id="302" parent="295" name="questions">
+    <table id="302" parent="295" name="surveys">
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
@@ -1054,109 +1054,78 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
-    <column id="304" parent="301" name="answer_id">
-      <AutoIncrement>1</AutoIncrement>
+    <column id="304" parent="301" name="question_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StoredType>int|0s</StoredType>
-    </column>
-    <column id="305" parent="301" name="user_id">
-      <NotNull>1</NotNull>
-      <Position>2</Position>
-      <StoredType>int|0s</StoredType>
-    </column>
-    <column id="306" parent="301" name="question_id">
-      <NotNull>1</NotNull>
-      <Position>3</Position>
-      <StoredType>int|0s</StoredType>
-    </column>
-    <column id="307" parent="301" name="answer_text">
-      <NotNull>1</NotNull>
-      <Position>4</Position>
-      <StoredType>text|0s</StoredType>
-    </column>
-    <foreign-key id="308" parent="301" name="answers_ibfk_1">
-      <ColNames>user_id</ColNames>
-      <RefColNames>user_id</RefColNames>
-      <RefTableName>users</RefTableName>
-    </foreign-key>
-    <foreign-key id="309" parent="301" name="answers_ibfk_2">
-      <ColNames>question_id</ColNames>
-      <RefColNames>question_id</RefColNames>
-      <RefTableName>questions</RefTableName>
-    </foreign-key>
-    <index id="310" parent="301" name="PRIMARY">
-      <ColNames>answer_id</ColNames>
-      <Type>btree</Type>
-      <Unique>1</Unique>
-    </index>
-    <index id="311" parent="301" name="user_id">
-      <ColNames>user_id</ColNames>
-      <Type>btree</Type>
-    </index>
-    <index id="312" parent="301" name="question_id">
-      <ColNames>question_id</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="313" parent="301" name="PRIMARY">
-      <NameSurrogate>1</NameSurrogate>
-      <Primary>1</Primary>
-      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
-    </key>
-    <column id="314" parent="302" name="question_id">
-      <AutoIncrement>1</AutoIncrement>
-      <NotNull>1</NotNull>
-      <Position>1</Position>
-      <StoredType>int|0s</StoredType>
-    </column>
-    <column id="315" parent="302" name="question_text">
-      <NotNull>1</NotNull>
-      <Position>2</Position>
-      <StoredType>text|0s</StoredType>
-    </column>
-    <column id="316" parent="302" name="_id">
-      <NotNull>1</NotNull>
-      <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <index id="317" parent="302" name="PRIMARY">
+    <column id="305" parent="301" name="survey_id">
+      <Position>2</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="306" parent="301" name="question_text">
+      <Position>3</Position>
+      <StoredType>text|0s</StoredType>
+    </column>
+    <foreign-key id="307" parent="301" name="questions_ibfk_1">
+      <ColNames>survey_id</ColNames>
+      <OnDelete>cascade</OnDelete>
+      <RefColNames>survey_id</RefColNames>
+      <RefTableName>surveys</RefTableName>
+    </foreign-key>
+    <index id="308" parent="301" name="PRIMARY">
       <ColNames>question_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="318" parent="302" name="_id">
-      <ColNames>_id</ColNames>
+    <index id="309" parent="301" name="survey_id">
+      <ColNames>survey_id</ColNames>
       <Type>btree</Type>
-      <Unique>1</Unique>
     </index>
-    <key id="319" parent="302" name="PRIMARY">
+    <key id="310" parent="301" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="320" parent="302" name="_id">
-      <UnderlyingIndexName>_id</UnderlyingIndexName>
+    <column id="311" parent="302" name="survey_id">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="312" parent="302" name="title">
+      <Position>2</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <index id="313" parent="302" name="PRIMARY">
+      <ColNames>survey_id</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <key id="314" parent="302" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="321" parent="303" name="user_id">
+    <column id="315" parent="303" name="user_id">
       <AutoIncrement>10</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="322" parent="303" name="username">
+    <column id="316" parent="303" name="username">
       <Position>2</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="323" parent="303" name="password">
+    <column id="317" parent="303" name="password">
       <Position>3</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <index id="324" parent="303" name="PRIMARY">
+    <index id="318" parent="303" name="PRIMARY">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="325" parent="303" name="PRIMARY">
+    <key id="319" parent="303" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
