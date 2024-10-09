@@ -5,13 +5,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 import { createClient } from '@sanity/client'; // Use named export
+import { v4 as uuidv4 } from 'uuid';
 
 // MySQL and Sanity configuration
 const host = 'localhost';
 const user = 'root';
 const dbPass = '06Jia_Xiong';
 const port = 3000;
-
 const database = 'user_db';
 
 const projectId = 'scr4fyl4';
@@ -107,19 +107,46 @@ const sanity = createClient({
 	apiVersion: apiVersion,
 	token: token,
 	useCdn: useCdn,
-});
-
-// Fetch questions from Sanity API
-app.get('/questions', async (req, res) => {
+});app.get('/questions', async (req, res) => {
 	try {
 		const query = '*[_type == "survey"]{title, questions[]{text, type, options}}'; // Query to fetch surveys and their questions
-		const questions = await sanity.fetch(query); // Fetch data from Sanity
-		res.status(200).json(questions); // Send the fetched data as a response
+		const surveys = await sanity.fetch(query); // Fetch data from Sanity
+		console.log('Fetched surveys:', surveys); // Log the fetched surveys
+
+		// Connect to the database
+		const connection = await getConnection();
+
+		for (const survey of surveys) {
+			const surveyId = uuidv4(); // Generate a unique survey ID
+
+			// Insert the survey title into the MySQL database
+			const [surveyResult] = await connection.execute(
+				'INSERT INTO questions (survey_id, title) VALUES (?, ?)',
+				[surveyId, survey.title]
+			);
+
+			// Check if questions exist and are iterable
+			if (Array.isArray(survey.questions)) {
+				for (const question of survey.questions) {
+					// Insert each question into the MySQL database
+					await connection.execute(
+						'INSERT INTO questions (survey_id, title) VALUES (?, ?)',
+						[surveyId, question.text]
+					);
+				}
+			} else {
+				console.warn(`No questions found for survey titled "${survey.title}"`);
+			}
+		}
+
+		await connection.end();
+		res.status(200).json(surveys); // Send the fetched data as a response
 	} catch (error) {
 		console.error('Error fetching questions from Sanity:', error);
 		res.status(500).json({ error: 'Failed to fetch questions' });
 	}
 });
+
 
 // Start the server
 app.listen(port, () => {
