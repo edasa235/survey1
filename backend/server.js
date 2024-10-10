@@ -107,31 +107,36 @@ const sanity = createClient({
 	apiVersion: apiVersion,
 	token: token,
 	useCdn: useCdn,
-});app.get('/questions', async (req, res) => {
+});
+app.get('/questions', async (req, res) => {
 	try {
-		const query = '*[_type == "survey"]{title, questions[]{text, type, options}}'; // Query to fetch surveys and their questions
-		const surveys = await sanity.fetch(query); // Fetch data from Sanity
-		console.log('Fetched surveys:', surveys); // Log the fetched surveys
+		// Sanity query to fetch surveys and questions
+		const query = '*[_type == "survey"]{title, questions[]{text, type, options}}';
+		const surveys = await sanity.fetch(query);
+		console.log('Fetched surveys:', surveys);
 
-		// Connect to the database
+		// Connect to the MySQL database
 		const connection = await getConnection();
 
+		// Loop through each survey fetched from Sanity
 		for (const survey of surveys) {
-			const surveyId = uuidv4(); // Generate a unique survey ID
-
-			// Insert the survey title into the MySQL database
+			// Insert the survey title into the `surveys` table and get the auto-incremented survey_id
 			const [surveyResult] = await connection.execute(
-				'INSERT INTO questions (survey_id, title) VALUES (?, ?)',
-				[surveyId, survey.title]
+				'INSERT INTO surveys (title) VALUES (?)',
+				[survey.title]
 			);
+			const surveyId = surveyResult.insertId; // MySQL auto-incremented survey_id
 
-			// Check if questions exist and are iterable
+			// Check if the survey contains questions and if they are iterable
 			if (Array.isArray(survey.questions)) {
 				for (const question of survey.questions) {
-					// Insert each question into the MySQL database
+					// Generate a UUID for the question
+					const questionId = uuidv4();
+
+					// Insert the question into the `questions` table with the generated UUID and the auto-incremented survey_id
 					await connection.execute(
-						'INSERT INTO questions (survey_id, title) VALUES (?, ?)',
-						[surveyId, question.text]
+						'INSERT INTO questions (question_id, survey_id, title) VALUES (?, ?, ?)',
+						[questionId, surveyId, question.text]
 					);
 				}
 			} else {
@@ -139,11 +144,37 @@ const sanity = createClient({
 			}
 		}
 
+		// Close the MySQL connection
 		await connection.end();
-		res.status(200).json(surveys); // Send the fetched data as a response
+		// Respond with the fetched surveys
+		res.status(200).json(surveys);
 	} catch (error) {
 		console.error('Error fetching questions from Sanity:', error);
 		res.status(500).json({ error: 'Failed to fetch questions' });
+	}
+});
+
+app.post('/answers', async (req, res) => {
+	const { question_id, user_id, answer_text } = req.body;
+
+	try {
+		// Establish a connection to the MySQL database
+		const connection = await getConnection();
+
+		// Insert the answer into the answers table
+		const [result] = await connection.execute(
+			'INSERT INTO answers (question_id, user_id, answer_text) VALUES (?, ?, ?)',
+			[question_id, user_id, answer_text]
+		);
+
+		// Close the MySQL connection
+		await connection.end();
+
+		// Respond with the answer_id of the newly inserted answer
+		res.status(201).json({ answer_id: result.insertId, message: 'Answer stored successfully' });
+	} catch (error) {
+		console.error('Error storing answer:', error);
+		res.status(500).json({ error: 'Failed to store answer' });
 	}
 });
 

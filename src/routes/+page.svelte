@@ -14,19 +14,40 @@
     let password = '';
     let user_id = null;
     onMount(async () => {
-        const query = `*[_type == "survey"]{title, questions}`;
-        survey = await client.fetch(query);
-        console.log(survey); // Check if the questions array has multiple items
+        // Fetch questions from the Express server
+        try {
+            const response = await fetch('http://localhost:3000/questions');
+            if (response.ok) {
+                survey = await response.json();
+                console.log(survey); // Check the data structure in the console
+            } else {
+                console.error('Failed to fetch questions');
+            }
+        } catch (error) {
+            console.error('Error fetching survey data:', error);
+        }
     });
+    async function handleSubmit() {
+        try {
+            const response = await fetch('http://localhost:3000/answers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, responses, user_id }) // Send user ID along with responses
+            });
 
-    function handleSubmit() {
-        console.log({
-            name,
-            email,
-            responses
-        });
-        // Add logic to handle form submission, e.g., sending data to a server
+            const result = await response.json();
+            if (response.ok) {
+                alert('Survey submitted successfully!');
+            } else {
+                console.error('Survey submission failed:', result.error);
+            }
+        } catch (error) {
+            console.error('Error submitting survey:', error);
+        }
     }
+
 
     function toggleSignUpModal() {
         showSignUpModal = !showSignUpModal;
@@ -203,30 +224,33 @@
             </form>
         </div>
     </div>
-{/if}{#if survey}
-    <main class="p-4 max-w-lg mx-auto">
-        <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-            {#each survey as singleSurvey}
-                {#each singleSurvey.questions as question}
-                    <div class="question-container">
-                        <div class="question-text">{question.text}</div>
-                        {#if question.type === 'short'}
-                            <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
-                        {:else if question.type === 'long'}
-                            <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your detailed answer" required></textarea>
-                        {:else if question.type === 'multiple'}
-                            {#each question.options as option}
-                                <div class="flex items-center mt-2">
-                                    <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} class="mr-2" />
-                                    <label for={option} class="text-sm text-gray-700">{option}</label>
-                                </div>
-                            {/each}
-                        {/if}
-                    </div>
-                {/each}
-            {/each}
-
-            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Submit</button>
-        </form>
-    </main>
 {/if}
+<h1>Survey App</h1>
+
+{#if survey}
+    {#each survey as { title, questions }}
+        <div class="survey-container">
+            <h2>{title}</h2>
+            {#each questions as { text, type, options }}
+                <div class="question-container">
+                    <p class="question-text">{text}</p>
+                    {#if type === 'multiple-choice'}
+                        <select bind:value={responses[text]}>
+                            {#each options as option}
+                                <option value={option}>{option}</option>
+                            {/each}
+                        </select>
+                    {/if}
+                    {#if type === 'short-answer'}
+                        <input type="text" bind:value={responses[text]} />
+                    {/if}
+                    {#if type === 'long-answer'}
+                        <textarea bind:value={responses[text]}></textarea>
+                    {/if}
+                </div>
+            {/each}
+        </div>
+    {/each}
+{/if}
+
+<button on:click={handleSubmit}>Submit</button>
