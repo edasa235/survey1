@@ -153,33 +153,49 @@ app.get('/questions', async (req, res) => {
 		res.status(500).json({ error: 'Failed to fetch questions' });
 	}
 });
-
 app.post('/answers', async (req, res) => {
-	const { question_id, user_id, answer_text } = req.body;
+	const { responses, user_id } = req.body;
+	console.log('Received responses:', responses, 'User ID:', user_id);
 
 	try {
-		// Establish a connection to the MySQL database
 		const connection = await getConnection();
 
-		// Insert the answer into the answers table
-		const [result] = await connection.execute(
-			'INSERT INTO answers (question_id, user_id, answer_text) VALUES (?, ?, ?)',
-			[question_id, user_id, answer_text]
-		);
+		// Log existing question IDs for debugging
+		const [existingQuestions] = await connection.execute('SELECT question_id, title FROM questions');
+		console.log('Existing questions:', existingQuestions);
 
-		// Close the MySQL connection
+		// Iterate through each response
+		for (const questionId in responses) {
+			const answer = responses[questionId];
+			console.log('Storing answer for question ID:', questionId, 'answer:', answer);
+
+			// Check if the question ID exists
+			const [questionRows] = await connection.execute(
+				'SELECT * FROM questions WHERE question_id = ?',
+				[questionId]
+			);
+
+			if (questionRows.length > 0) {
+				// Insert the answer into the answers table
+				await connection.execute(
+					'INSERT INTO answers (user_id, question_id, answer) VALUES (?, ?, ?)',
+					[user_id, questionId, answer]
+				);
+			} else {
+				console.error(`Question ID ${questionId} does not exist in the questions table.`);
+			}
+		}
+
 		await connection.end();
-
-		// Respond with the answer_id of the newly inserted answer
-		res.status(201).json({ answer_id: result.insertId, message: 'Answer stored successfully' });
+		res.status(201).json({ message: 'Answers stored successfully' });
 	} catch (error) {
-		console.error('Error storing answer:', error);
+		console.error('Error storing answers:', error);
 		res.status(500).json({ error: 'Failed to store answer' });
 	}
 });
 
-
 // Start the server
 app.listen(port, () => {
 	console.log(`Server is running on http://localhost:${port}`);
+
 });

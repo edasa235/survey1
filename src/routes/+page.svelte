@@ -3,8 +3,6 @@
     import { onMount } from 'svelte';
 
     let survey = null;
-    let name = '';
-    let email = '';
     let responses = {};
     let showSignUpModal = false;
     let showLoginModal = false;
@@ -34,7 +32,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name, email, responses, user_id }) // Send user ID along with responses
+                body: JSON.stringify({ responses, user_id }) // Send user ID along with responses
             });
 
             const result = await response.json();
@@ -226,31 +224,30 @@
     </div>
 {/if}
 <h1>Survey App</h1>
-
 {#if survey}
-    {#each survey as { title, questions }}
-        <div class="survey-container">
-            <h2>{title}</h2>
-            {#each questions as { text, type, options }}
-                <div class="question-container">
-                    <p class="question-text">{text}</p>
-                    {#if type === 'multiple-choice'}
-                        <select bind:value={responses[text]}>
-                            {#each options as option}
-                                <option value={option}>{option}</option>
+    <main class="p-4 max-w-lg mx-auto">
+        <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+            {#each survey as singleSurvey}
+                {#each singleSurvey.questions as question}
+                    <div class="question-container">
+                        <div class="question-text">{question.text}</div>
+                        {#if question.type === 'short'}
+                            <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
+                        {:else if question.type === 'long'}
+                            <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your detailed answer" required></textarea>
+                        {:else if question.type === 'multiple'}
+                            {#each question.options as option}
+                                <div class="flex items-center mt-2">
+                                    <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} class="mr-2" />
+                                    <label for={option} class="text-sm text-gray-700">{option}</label>
+                                </div>
                             {/each}
-                        </select>
-                    {/if}
-                    {#if type === 'short-answer'}
-                        <input type="text" bind:value={responses[text]} />
-                    {/if}
-                    {#if type === 'long-answer'}
-                        <textarea bind:value={responses[text]}></textarea>
-                    {/if}
-                </div>
+                        {/if}
+                    </div>
+                {/each}
             {/each}
-        </div>
-    {/each}
-{/if}
 
-<button on:click={handleSubmit}>Submit</button>
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Submit</button>
+        </form>
+    </main>
+{/if}
