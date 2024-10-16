@@ -17,7 +17,7 @@ const database = 'user_db';
 const projectId = 'scr4fyl4';
 const dataset = 'production';
 const apiVersion = '2023-09-01';
-const token = 'skfKo1jiHVNhptN1F028ro14odfFMT8Fzs2ESDy0NhnMvHSnnnQtC9KYnXhUm1gd5j45xBWUkKiT17CwiKpOmekV9kEnCKQfa0Fej48Ex0mFWNbEgDXzaRz7dUIwyZ9tqMKtgOTt4dNtKnu0eQmeml1mhHZG6o7zOqFpUDJHQFLgr601STGs'; // Replace with your actual token
+const token = 'sk0WcPXvi2dXCLM93EBXrT6rmXve6oIF6PObOEhORqwHzXi0Qmu5oR4Mj7gNlL3krvwRoNQRzJXsV5JhHUnT47RiR85BMEfnFYPUhOvfCLtHyRyUYP7LaOlbNZ03QOF1UJIoCS6MTbOtUasztrRrou8gglm8dMJ9Hny5qdBfMzLCxjbidnPb'; // Replace with your actual token
 const useCdn = false;
 
 // MySQL connection configuration
@@ -107,52 +107,58 @@ const sanity = createClient({
 	apiVersion: apiVersion,
 	token: token,
 	useCdn: useCdn,
-});
-app.get('/questions', async (req, res) => {
+});app.get('/questions', async (req, res) => {
 	try {
-		// Sanity query to fetch surveys and questions
-		const query = '*[_type == "survey"]{title, questions[]{text, type, options}}';
+		const query = '*[_type == "survey"]{_id, title, questions[]{_key, text, type, options}}';
 		const surveys = await sanity.fetch(query);
 		console.log('Fetched surveys:', surveys);
 
-		// Connect to the MySQL database
+		console.log('Fetched surveys:', surveys);
+
 		const connection = await getConnection();
 
-		// Loop through each survey fetched from Sanity
 		for (const survey of surveys) {
-			// Insert the survey title into the `surveys` table and get the auto-incremented survey_id
 			const [surveyResult] = await connection.execute(
 				'INSERT INTO surveys (title) VALUES (?)',
 				[survey.title]
 			);
-			const surveyId = surveyResult.insertId; // MySQL auto-incremented survey_id
+			const surveyId = surveyResult.insertId;
 
-			// Check if the survey contains questions and if they are iterable
 			if (Array.isArray(survey.questions)) {
 				for (const question of survey.questions) {
-					// Generate a UUID for the question
 					const questionId = uuidv4();
 
-					// Insert the question into the `questions` table with the generated UUID and the auto-incremented survey_id
+					// Insert the question into MySQL
 					await connection.execute(
 						'INSERT INTO questions (question_id, survey_id, title) VALUES (?, ?, ?)',
 						[questionId, surveyId, question.text]
 					);
+
+					// Update Sanity CMS with the generated UUID for this question
+					const patchResult = await sanity
+						.patch(survey._id)
+						.set({
+							[`questions[_key == "${question._key}"].question_id`]: questionId,
+						})
+						.commit();
+
+					console.log('Patch result:', patchResult);
+
+
+
+
 				}
-			} else {
-				console.warn(`No questions found for survey titled "${survey.title}"`);
 			}
 		}
 
-		// Close the MySQL connection
 		await connection.end();
-		// Respond with the fetched surveys
 		res.status(200).json(surveys);
 	} catch (error) {
-		console.error('Error fetching questions from Sanity:', error);
-		res.status(500).json({ error: 'Failed to fetch questions' });
+		console.error('Error fetching or updating questions:', error);
+		res.status(500).json({ error: 'Failed to fetch or update questions' });
 	}
 });
+
 app.post('/answers', async (req, res) => {
 	const { responses, user_id } = req.body;
 	console.log('Received responses:', responses, 'User ID:', user_id);

@@ -11,6 +11,7 @@
     let username = '';
     let password = '';
     let user_id = null;
+
     onMount(async () => {
         // Fetch questions from the Express server
         try {
@@ -25,6 +26,7 @@
             console.error('Error fetching survey data:', error);
         }
     });
+
     async function handleSubmit() {
         try {
             const response = await fetch('http://localhost:3000/answers', {
@@ -45,7 +47,6 @@
             console.error('Error submitting survey:', error);
         }
     }
-
 
     function toggleSignUpModal() {
         showSignUpModal = !showSignUpModal;
@@ -76,7 +77,6 @@
         }
     }
 
-
     async function handleLogin(event) {
         event.preventDefault();
 
@@ -103,10 +103,6 @@
 
                 // Show a confirmation message
                 alert("Login successful!");
-
-                // Show a confirmation message (you could create a state for it)
-                alert("Login successful!");
-
             } else {
                 console.error('Login Error:', data.error);
             }
@@ -114,7 +110,6 @@
             console.error('Login Error:', error);
         }
     }
-
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -173,6 +168,7 @@
         margin-bottom: 0.5rem;
     }
 </style>
+
 <!-- Sign Up Modal -->
 {#if showSignUpModal}
     <div class="modal">
@@ -198,7 +194,6 @@
     </div>
 {/if}
 
-
 <!-- Login Modal -->
 {#if showLoginModal}
     <div class="modal">
@@ -223,6 +218,7 @@
         </div>
     </div>
 {/if}
+
 <h1>Survey App</h1>
 {#if survey}
     <main class="p-4 max-w-lg mx-auto">
@@ -230,7 +226,9 @@
             {#each survey as singleSurvey}
                 {#each singleSurvey.questions as question}
                     <div class="question-container">
-                        <div class="question-text">{question.text}</div>
+                        <div class="question-text">
+                            {question.text} (ID: {question.question_id}) <!-- Display the question_id here -->
+                        </div>
                         {#if question.type === 'short'}
                             <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
                         {:else if question.type === 'long'}
@@ -250,4 +248,6 @@
             <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Submit</button>
         </form>
     </main>
+{:else}
+    <p>Loading survey questions...</p>
 {/if}
