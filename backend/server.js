@@ -107,7 +107,6 @@ const sanity = createClient({
 	token: token,
 	useCdn: useCdn,
 });
-
 // Fetch questions endpoint
 app.get('/questions', async (req, res) => {
 	try {
@@ -134,7 +133,7 @@ app.get('/questions', async (req, res) => {
 
 					if (existingQuestions.length === 0) {
 						// Only generate a new question ID if it doesn't exist
-						let questionId;
+						let questionId = null; // Initialize questionId
 						let isUnique = false;
 
 						// Ensure unique question ID between 1 and 10,000
@@ -178,6 +177,7 @@ app.get('/questions', async (req, res) => {
 		res.status(500).json({ error: 'Failed to fetch or update questions' });
 	}
 });
+
 
 // Answers endpoint
 app.post('/answers', async (req, res) => {
