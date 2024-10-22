@@ -219,35 +219,36 @@
     </div>
 {/if}
 
-<h1>Survey App</h1>
+<h1>Survey App</h1><!-- Display the questions and include the question_id -->
 {#if survey}
-    <main class="p-4 max-w-lg mx-auto">
-        <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-            {#each survey as singleSurvey}
-                {#each singleSurvey.questions as question}
-                    <div class="question-container">
-                        <div class="question-text">
-                            {question.text} (ID: {question.question_id}) <!-- Display the question_id here -->
-                        </div>
-                        {#if question.type === 'short'}
-                            <input type="text" bind:value={responses[question.text]} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your answer" required />
-                        {:else if question.type === 'long'}
-                            <textarea bind:value={responses[question.text]} rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Your detailed answer" required></textarea>
-                        {:else if question.type === 'multiple'}
-                            {#each question.options as option}
-                                <div class="flex items-center mt-2">
-                                    <input type="radio" id={option} name={question.text} value={option} bind:group={responses[question.text]} class="mr-2" />
-                                    <label for={option} class="text-sm text-gray-700">{option}</label>
-                                </div>
-                            {/each}
-                        {/if}
-                    </div>
-                {/each}
-            {/each}
+    {#each survey as surveyItem (surveyItem._id)}
+        <div class="survey-container">
+            <h2>{surveyItem.title}</h2>
 
-            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Submit</button>
-        </form>
-    </main>
-{:else}
-    <p>Loading survey questions...</p>
+            {#each surveyItem.questions as question (question._key)}
+                <div class="question-container">
+                    <div class="question-text">
+                        <!-- Display the question_id along with the text -->
+                        <span>Question ID hello: {question.question_id}</span> - {question.text}
+                    </div>
+
+                    <!-- Depending on the question type, render different input fields -->
+                    {#if question.type === 'short_answer'}
+                        <input type="text" bind:value={responses[question.question_id]} class="input-field" placeholder="Your answer here" />
+                    {:else if question.type === 'long_answer'}
+                        <textarea bind:value={responses[question.question_id]} class="textarea-field" placeholder="Your answer here"></textarea>
+                    {:else if question.type === 'multiple_choice'}
+                        {#each question.options as option (option)}
+                            <div>
+                                <label>
+                                    <input type="radio" name="question_{question.question_id}" value={option} bind:group={responses[question.question_id]} />
+                                    {option}
+                                </label>
+                            </div>
+                        {/each}
+                    {/if}
+                </div>
+            {/each}
+        </div>
+    {/each}
 {/if}

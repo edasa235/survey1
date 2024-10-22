@@ -1,33 +1,30 @@
-export default  {
+export default {
     name: 'question',
     title: 'Question',
-    type: 'document',
+    type: 'object',
     fields: [
         {
             name: 'question_id',
             title: 'Question ID',
-            type: 'string', // Use string to store UUID
-            initialValue: '0', // You can update this later in your code to generate unique IDs
-            options: {
-                isUnique: true, // Ensures question IDs are unique
-            },
+            type: 'number',
+            description: 'Unique ID for the question',
+            readOnly: true, // This can be true if you want it to be auto-generated and not editable manually
         },
         {
             name: 'text',
-            title: 'Question Text',
+            title: 'Text',
             type: 'string',
         },
         {
             name: 'type',
-            title: 'Question Type',
+            title: 'Type',
             type: 'string',
             options: {
                 list: [
-                    { title: 'Multiple Choice', value: 'multiple-choice' },
-                    { title: 'Short Answer', value: 'short-answer' },
-                    { title: 'Long Answer', value: 'long-answer' },
+                    { title: 'Short Answer', value: 'short' },
+                    { title: 'Long Answer', value: 'long' },
+                    { title: 'Multiple Choice', value: 'multiple' },
                 ],
-                layout: 'dropdown', // optional: to enforce a dropdown selection for question types
             },
         },
         {
@@ -35,7 +32,7 @@ export default  {
             title: 'Options',
             type: 'array',
             of: [{ type: 'string' }],
-            hidden: ({ parent }) => parent.type !== 'multiple-choice', // Only show options field for multiple-choice questions
+            hidden: ({ parent }) => parent?.type !== 'multiple',
         },
     ],
 };

@@ -5,7 +5,6 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 import { createClient } from '@sanity/client'; // Use named export
-import { v4 as uuidv4 } from 'uuid';
 
 // MySQL and Sanity configuration
 const host = 'localhost';
@@ -107,12 +106,13 @@ const sanity = createClient({
 	apiVersion: apiVersion,
 	token: token,
 	useCdn: useCdn,
-});app.get('/questions', async (req, res) => {
+});
+
+// Fetch questions endpoint
+app.get('/questions', async (req, res) => {
 	try {
 		const query = '*[_type == "survey"]{_id, title, questions[]{_key, text, type, options}}';
 		const surveys = await sanity.fetch(query);
-		console.log('Fetched surveys:', surveys);
-
 		console.log('Fetched surveys:', surveys);
 
 		const connection = await getConnection();
@@ -126,27 +126,47 @@ const sanity = createClient({
 
 			if (Array.isArray(survey.questions)) {
 				for (const question of survey.questions) {
-					const questionId = uuidv4();
-
-					// Insert the question into MySQL
-					await connection.execute(
-						'INSERT INTO questions (question_id, survey_id, title) VALUES (?, ?, ?)',
-						[questionId, surveyId, question.text]
+					// Check if the question already exists in MySQL
+					const [existingQuestions] = await connection.execute(
+						'SELECT * FROM questions WHERE title = ? AND survey_id = ?',
+						[question.text, surveyId]
 					);
 
-					// Update Sanity CMS with the generated UUID for this question
-					const patchResult = await sanity
-						.patch(survey._id)
-						.set({
-							[`questions[_key == "${question._key}"].question_id`]: questionId,
-						})
-						.commit();
+					if (existingQuestions.length === 0) {
+						// Only generate a new question ID if it doesn't exist
+						let questionId;
+						let isUnique = false;
 
-					console.log('Patch result:', patchResult);
+						// Ensure unique question ID between 1 and 10,000
+						while (!isUnique) {
+							questionId = Math.floor(Math.random() * 10000) + 1; // Random integer between 1-10,000
 
+							// Check if the generated ID already exists
+							const [checkId] = await connection.execute(
+								'SELECT * FROM questions WHERE question_id = ?',
+								[questionId]
+							);
+							isUnique = checkId.length === 0; // If not found, it's unique
+						}
 
+						// Insert the question into MySQL
+						await connection.execute(
+							'INSERT INTO questions (question_id, survey_id, title) VALUES (?, ?, ?)',
+							[questionId, surveyId, question.text]
+						);
 
+						// Update Sanity CMS with the generated question ID for this question
+						const patchResult = await sanity
+							.patch(survey._id)
+							.set({
+								[`questions[_key == "${question._key}"].question_id`]: questionId,
+							})
+							.commit();
 
+						console.log('Patch result:', patchResult);
+					} else {
+						console.log(`Question "${question.text}" already exists in MySQL.`);
+					}
 				}
 			}
 		}
@@ -159,16 +179,13 @@ const sanity = createClient({
 	}
 });
 
+// Answers endpoint
 app.post('/answers', async (req, res) => {
 	const { responses, user_id } = req.body;
 	console.log('Received responses:', responses, 'User ID:', user_id);
 
 	try {
 		const connection = await getConnection();
-
-		// Log existing question IDs for debugging
-		const [existingQuestions] = await connection.execute('SELECT question_id, title FROM questions');
-		console.log('Existing questions:', existingQuestions);
 
 		// Iterate through each response
 		for (const questionId in responses) {
@@ -203,5 +220,5 @@ app.post('/answers', async (req, res) => {
 // Start the server
 app.listen(port, () => {
 	console.log(`Server is running on http://localhost:${port}`);
-
 });
+

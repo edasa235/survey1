@@ -1017,7 +1017,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </schema>
     <schema id="295" parent="1" name="user_db">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-10-11.08:07:42</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-10-16.08:56:56</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="296" parent="1" name="world">
@@ -1059,7 +1059,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
     <column id="305" parent="301" name="answer_id">
-      <AutoIncrement>2</AutoIncrement>
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
@@ -1073,14 +1073,14 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Position>3</Position>
       <StoredType>int|0s</StoredType>
     </column>
-    <column id="308" parent="301" name="created_at">
-      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+    <column id="308" parent="301" name="answer_text">
       <Position>4</Position>
-      <StoredType>timestamp|0s</StoredType>
-    </column>
-    <column id="309" parent="301" name="answer">
-      <Position>5</Position>
       <StoredType>text|0s</StoredType>
+    </column>
+    <column id="309" parent="301" name="created_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <Position>5</Position>
+      <StoredType>timestamp|0s</StoredType>
     </column>
     <foreign-key id="310" parent="301" name="answers_ibfk_1">
       <ColNames>question_id</ColNames>
@@ -1153,7 +1153,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
     <column id="324" parent="303" name="survey_id">
-      <AutoIncrement>33</AutoIncrement>
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
@@ -1179,7 +1179,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
     <column id="329" parent="304" name="user_id">
-      <AutoIncrement>3</AutoIncrement>
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
