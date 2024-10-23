@@ -11,14 +11,12 @@
     let username = '';
     let password = '';
     let user_id = null;
-
     onMount(async () => {
-        // Fetch questions from the Express server
         try {
             const response = await fetch('http://localhost:3000/questions');
             if (response.ok) {
                 survey = await response.json();
-                console.log(survey); // Check the data structure in the console
+                console.log(survey); // Check the structure of the survey data
             } else {
                 console.error('Failed to fetch questions');
             }
@@ -26,6 +24,7 @@
             console.error('Error fetching survey data:', error);
         }
     });
+
 
     async function handleSubmit() {
         try {
@@ -47,6 +46,7 @@
             console.error('Error submitting survey:', error);
         }
     }
+
 
     function toggleSignUpModal() {
         showSignUpModal = !showSignUpModal;
@@ -128,6 +128,21 @@
 </header>
 
 <style>
+
+    .input-field, .textarea-field {
+        border: 2px solid red; /* Add a visible border */
+        background-color: yellow; /* Add a bright background */
+    }
+
+    .input-field,
+    .textarea-field {
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 0.5rem;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
     .modal {
         position: fixed;
         top: 0;
@@ -217,10 +232,7 @@
             </form>
         </div>
     </div>
-{/if}
-
-<h1>Survey App</h1><!-- Display the questions and include the question_id -->
-{#if survey}
+{/if}{#if survey}
     {#each survey as surveyItem (surveyItem._id)}
         <div class="survey-container">
             <h2>{surveyItem.title}</h2>
@@ -229,19 +241,35 @@
                 <div class="question-container">
                     <div class="question-text">
                         <!-- Display the question_id along with the text -->
-                        <span>Question ID hello: {question.question_id}</span> - {question.text}
+                        <span>Question ID: {question.question_id}</span> - {question.text}
                     </div>
 
-                    <!-- Depending on the question type, render different input fields -->
+                    <!-- Input fields based on question type -->
                     {#if question.type === 'short_answer'}
-                        <input type="text" bind:value={responses[question.question_id]} class="input-field" placeholder="Your answer here" />
+                        <input
+                          type="text"
+                          bind:value={responses[question.question_id]}
+                          class="input-field border border-gray-300 rounded-md p-2 w-full mt-2"
+                          placeholder="Your answer here"
+                          style="display: block;"
+                        />
                     {:else if question.type === 'long_answer'}
-                        <textarea bind:value={responses[question.question_id]} class="textarea-field" placeholder="Your answer here"></textarea>
+                        <textarea
+                          bind:value={responses[question.question_id]}
+                          class="textarea-field border border-gray-300 rounded-md p-2 w-full mt-2"
+                          placeholder="Your answer here"
+                          style="display: block; height: 100px;"
+                        ></textarea>
                     {:else if question.type === 'multiple_choice'}
                         {#each question.options as option (option)}
                             <div>
                                 <label>
-                                    <input type="radio" name="question_{question.question_id}" value={option} bind:group={responses[question.question_id]} />
+                                    <input
+                                      type="radio"
+                                      name="question_{question.question_id}"
+                                      value={option}
+                                      bind:group={responses[question.question_id]}
+                                    />
                                     {option}
                                 </label>
                             </div>
@@ -251,4 +279,9 @@
             {/each}
         </div>
     {/each}
+
+    <!-- Submit button -->
+    <button on:click={handleSubmit} class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md">
+        Submit
+    </button>
 {/if}
