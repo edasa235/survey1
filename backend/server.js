@@ -106,55 +106,89 @@ const sanity = createClient({
 	apiVersion: apiVersion,
 	token: token,
 	useCdn: useCdn,
-});
-// Fetch questions endpoint
-app.get('/questions', async (req, res) => {
+});app.get('/questions', async (req, res) => {
 	try {
-		const query = '*[_type == "survey"]{_id, title, questions[]{_key, text, type, options}}';
+		// Query for surveys and their questions from Sanity
+		const query = '*[_type == "survey"]{_id, title, questions[]{_key, text, type, options, question_id}}';
 		const surveys = await sanity.fetch(query);
 		console.log('Fetched surveys:', surveys);
 
 		const connection = await getConnection();
 
 		for (const survey of surveys) {
-			const [surveyResult] = await connection.execute(
-				'INSERT INTO surveys (title) VALUES (?)',
+			// Insert survey into MySQL if not already present
+			const [existingSurvey] = await connection.execute(
+				'SELECT * FROM surveys WHERE title = ?',
 				[survey.title]
 			);
-			const surveyId = surveyResult.insertId;
+			let surveyId;
+			if (existingSurvey.length > 0) {
+				// Survey already exists, use its ID
+				surveyId = existingSurvey[0].survey_id;
+			} else {
+				// Insert the survey and get the inserted ID
+				const [surveyResult] = await connection.execute(
+					'INSERT INTO surveys (title) VALUES (?)',
+					[survey.title]
+				);
+				surveyId = surveyResult.insertId;
+			}
 
+			// Process each question in the survey
 			if (Array.isArray(survey.questions)) {
 				for (const question of survey.questions) {
-					// Check if the question already exists in MySQL
-					const [existingQuestions] = await connection.execute(
+					let questionId = question.question_id;
+
+					// Check if there's already a question with the same title in this survey
+					const [existingQuestionWithTitle] = await connection.execute(
 						'SELECT * FROM questions WHERE title = ? AND survey_id = ?',
 						[question.text, surveyId]
 					);
 
-					if (existingQuestions.length === 0) {
-						// Only generate a new question ID if it doesn't exist
-						let questionId = null; // Initialize questionId
+					if (existingQuestionWithTitle.length > 0) {
+						// Question with the same title already exists in this survey, skip insertion
+						console.log(`Duplicate question with title "${question.text}" found in survey "${survey.title}", skipping...`);
+						continue;
+					}
+
+					// Check if the question already has a question_id in Sanity
+					if (questionId) {
+						// Check if this question_id exists in MySQL
+						const [existingQuestion] = await connection.execute(
+							'SELECT * FROM questions WHERE question_id = ?',
+							[questionId]
+						);
+
+						if (existingQuestion.length === 0) {
+							// If the question_id does not exist in MySQL, insert it
+							await connection.execute(
+								'INSERT INTO questions (question_id, survey_id, title) VALUES (?, ?, ?)',
+								[questionId, surveyId, question.text]
+							);
+						}
+					} else {
+						// If question_id does not exist, generate one
 						let isUnique = false;
 
 						// Ensure unique question ID between 1 and 10,000
 						while (!isUnique) {
-							questionId = Math.floor(Math.random() * 10000) + 1; // Random integer between 1-10,000
+							questionId = Math.floor(Math.random() * 10000) + 1;
 
-							// Check if the generated ID already exists
+							// Check if the generated question_id is unique in MySQL
 							const [checkId] = await connection.execute(
 								'SELECT * FROM questions WHERE question_id = ?',
 								[questionId]
 							);
-							isUnique = checkId.length === 0; // If not found, it's unique
+							isUnique = checkId.length === 0; // It's unique if no matching IDs are found
 						}
 
-						// Insert the question into MySQL
+						// Insert the new question into MySQL with the generated question_id
 						await connection.execute(
 							'INSERT INTO questions (question_id, survey_id, title) VALUES (?, ?, ?)',
 							[questionId, surveyId, question.text]
 						);
 
-						// Update Sanity CMS with the generated question ID for this question
+						// Update Sanity with the generated question_id
 						const patchResult = await sanity
 							.patch(survey._id)
 							.set({
@@ -162,9 +196,7 @@ app.get('/questions', async (req, res) => {
 							})
 							.commit();
 
-						console.log('Patch result:', patchResult);
-					} else {
-						console.log(`Question "${question.text}" already exists in MySQL.`);
+						console.log('Patched question with new ID in Sanity:', patchResult);
 					}
 				}
 			}
