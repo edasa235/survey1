@@ -32,7 +32,11 @@ export default {
             title: 'Options',
             type: 'array',
             of: [{ type: 'string' }],
-            hidden: ({ parent }) => parent?.type !== 'multiple',
+            hidden: ({ parent }) => {
+                console.log("Parent type:", parent?.type); // Debugging line
+                return parent?.type !== 'multiple';
+            },
+
         },
     ],
 };

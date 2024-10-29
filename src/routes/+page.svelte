@@ -129,10 +129,6 @@
 
 <style>
 
-    .input-field, .textarea-field {
-        border: 2px solid red; /* Add a visible border */
-        background-color: yellow; /* Add a bright background */
-    }
 
     .input-field,
     .textarea-field {
@@ -182,6 +178,12 @@
         font-weight: bold;
         margin-bottom: 0.5rem;
     }
+    .input-field{ border: 1px solid #e2e8f0; border-radius: 4px; padding: 0.5rem; width: 100%; margin-top: 0.5rem; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 10; }
+    .modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 100%; }
+    .modal-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+    .question-container { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f7fafc; }
+    .question-text { font-weight: bold; margin-bottom: 0.5rem; }
 </style>
 
 <!-- Sign Up Modal -->
@@ -232,56 +234,46 @@
             </form>
         </div>
     </div>
-{/if}{#if survey}
+{/if}
+
+<!-- Survey Content -->
+{#if survey}
     {#each survey as surveyItem (surveyItem._id)}
         <div class="survey-container">
             <h2>{surveyItem.title}</h2>
-
             {#each surveyItem.questions as question (question._key)}
                 <div class="question-container">
                     <div class="question-text">
-                        <!-- Display the question_id along with the text -->
                         <span>Question ID: {question.question_id}</span> - {question.text}
                     </div>
-
-                    <!-- Input fields based on question type -->
-                    {#if question.type === 'short_answer'}
+                    {#if question.options && question.options.length > 0}
+                        <!-- Render options if available -->
+                        {#each question.options as option}
+                            <label class="block mt-2">
+                                <input
+                                  type="radio"
+                                  bind:group={responses[question.question_id]}
+                                  value={option}
+                                  class="mr-2"
+                                />
+                                {option}
+                            </label>
+                        {/each}
+                    {:else}
+                        <!-- Render a text input for questions without options -->
                         <input
                           type="text"
                           bind:value={responses[question.question_id]}
                           class="input-field border border-gray-300 rounded-md p-2 w-full mt-2"
                           placeholder="Your answer here"
-                          style="display: block;"
                         />
-                    {:else if question.type === 'long_answer'}
-                        <textarea
-                          bind:value={responses[question.question_id]}
-                          class="textarea-field border border-gray-300 rounded-md p-2 w-full mt-2"
-                          placeholder="Your answer here"
-                          style="display: block; height: 100px;"
-                        ></textarea>
-                    {:else if question.type === 'multiple_choice'}
-                        {#each question.options as option (option)}
-                            <div>
-                                <label>
-                                    <input
-                                      type="radio"
-                                      name="question_{question.question_id}"
-                                      value={option}
-                                      bind:group={responses[question.question_id]}
-                                    />
-                                    {option}
-                                </label>
-                            </div>
-                        {/each}
                     {/if}
                 </div>
             {/each}
         </div>
     {/each}
-
-    <!-- Submit button -->
     <button on:click={handleSubmit} class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md">
         Submit
     </button>
 {/if}
+>

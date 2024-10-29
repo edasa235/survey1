@@ -1,3 +1,5 @@
+
+
 // Import required packages
 import express from 'express';
 import mysql from 'mysql2/promise'; // Importing mysql2 with promise support
@@ -110,6 +112,7 @@ const sanity = createClient({
 	try {
 		// Query for surveys and their questions from Sanity
 		const query = '*[_type == "survey"]{_id, title, questions[]{_key, text, type, options, question_id}}';
+
 		const surveys = await sanity.fetch(query);
 		console.log('Fetched surveys:', surveys);
 
@@ -212,6 +215,7 @@ const sanity = createClient({
 
 
 // Answers endpoint
+// Answers endpoint
 app.post('/answers', async (req, res) => {
 	const { responses, user_id } = req.body;
 	console.log('Received responses:', responses, 'User ID:', user_id);
@@ -221,8 +225,8 @@ app.post('/answers', async (req, res) => {
 
 		// Iterate through each response
 		for (const questionId in responses) {
-			const answer = responses[questionId];
-			console.log('Storing answer for question ID:', questionId, 'answer:', answer);
+			const answerText = responses[questionId];
+			console.log('Storing answer for question ID:', questionId, 'Answer Text:', answerText);
 
 			// Check if the question ID exists
 			const [questionRows] = await connection.execute(
@@ -233,8 +237,8 @@ app.post('/answers', async (req, res) => {
 			if (questionRows.length > 0) {
 				// Insert the answer into the answers table
 				await connection.execute(
-					'INSERT INTO answers (user_id, question_id, answer) VALUES (?, ?, ?)',
-					[user_id, questionId, answer]
+					'INSERT INTO answers (user_id, question_id, answer_text) VALUES (?, ?, ?)',
+					[user_id, questionId, answerText]
 				);
 			} else {
 				console.error(`Question ID ${questionId} does not exist in the questions table.`);
@@ -248,6 +252,7 @@ app.post('/answers', async (req, res) => {
 		res.status(500).json({ error: 'Failed to store answer' });
 	}
 });
+
 
 // Start the server
 app.listen(port, () => {
