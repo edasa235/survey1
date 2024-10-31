@@ -9,6 +9,10 @@ const sanity = createClient({
 });
 
 export default async (req, res) => {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
 	if (req.method === 'GET') {
 		try {
 			const query = '*[_type == "survey"]{_id, title, questions[]{_key, text, type, options, question_id}}';
