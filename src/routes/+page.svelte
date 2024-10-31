@@ -14,7 +14,7 @@
     let user_id = null;
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost:3000/questions');
+            const response = await fetch('https://survey-git-master-edasa235s-projects.vercel.app/questions');
             if (response.ok) {
                 survey = await response.json();
                 console.log(survey); // Check the structure of the survey data
@@ -29,7 +29,7 @@
 
     async function handleSubmit() {
         try {
-            const response = await fetch('http://localhost:3000/answers', {
+            const response = await fetch('https://survey-git-master-edasa235s-projects.vercel.app/answers', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -60,7 +60,7 @@
     async function handlesignup(event) {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:3000/register', {
+            const response = await fetch('https://survey-git-master-edasa235s-projects.vercel.app/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -82,7 +82,7 @@
         event.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch('https://survey-git-master-edasa235s-projects.vercel.app/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
