@@ -1,6 +1,7 @@
 <script>
     import { client } from '../sanityClient';
     import { onMount } from 'svelte';
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     let survey = null;
     let responses = {};
@@ -13,7 +14,7 @@
     let user_id = null;
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost:3000/questions');
+            const response = await fetch(`${apiUrl}/questions`);
             if (response.ok) {
                 survey = await response.json();
                 console.log(survey); // Check the structure of the survey data
@@ -28,7 +29,7 @@
 
     async function handleSubmit() {
         try {
-            const response = await fetch('http://localhost:3000/answers', {
+            const response = await fetch(`${apiUrl}/answers`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -59,7 +60,7 @@
     async function handlesignup(event) {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:3000/register', {
+            const response = await fetch(`${apiUrl}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -81,7 +82,7 @@
         event.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch(`${apiUrl}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -110,6 +111,7 @@
             console.error('Login Error:', error);
         }
     }
+
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -276,4 +278,3 @@
         Submit
     </button>
 {/if}
->
