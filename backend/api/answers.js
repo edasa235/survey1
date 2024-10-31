@@ -1,12 +1,5 @@
-import express from 'express';
 import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const router = express.Router();
-
-// Function to establish a database connection
 async function getConnection() {
 	const dbConfig = {
 		host: process.env.DB_HOST,
@@ -17,27 +10,29 @@ async function getConnection() {
 	return mysql.createConnection(dbConfig);
 }
 
-// Answers endpoint
-router.post('/', async (req, res) => {
-	const { responses, user_id } = req.body;
-	try {
-		const connection = await getConnection();
+export default async (req, res) => {
+	if (req.method === 'POST') {
+		const { responses, user_id } = req.body;
 
-		// Store answers in MySQL
-		for (const questionId in responses) {
-			const answerText = responses[questionId];
-			await connection.execute(
-				'INSERT INTO answers (user_id, question_id, answer_text) VALUES (?, ?, ?)',
-				[user_id, questionId, answerText]
-			);
+		try {
+			const connection = await getConnection();
+
+			for (const questionId in responses) {
+				const answerText = responses[questionId];
+				await connection.execute(
+					'INSERT INTO answers (user_id, question_id, answer_text) VALUES (?, ?, ?)',
+					[user_id, questionId, answerText]
+				);
+			}
+
+			await connection.end();
+			res.status(201).json({ message: 'Answers stored successfully' });
+		} catch (error) {
+			console.error('Error storing answers:', error);
+			res.status(500).json({ error: 'Failed to store answers' });
 		}
-
-		await connection.end();
-		res.status(201).json({ message: 'Answers stored successfully' });
-	} catch (error) {
-		console.error('Error storing answers:', error);
-		res.status(500).json({ error: 'Failed to store answers' });
+	} else {
+		res.setHeader('Allow', ['POST']);
+		res.status(405).end(`Method ${req.method} Not Allowed`);
 	}
-});
-
-export default router;
+};
