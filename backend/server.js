@@ -143,32 +143,3 @@ app.post('/answers', async (req, res) => {
 		res.status(500).json({ error: 'Failed to store answers' });
 	}
 });
-app.post('/pincode', async (req, res) => {
-	const { user_id } = req.body; // Only extract user_id from req.body
-
-	// Generate a random pincode
-	const pincode = Math.floor(Math.random() * 9999) + 1;
-
-	let connection;
-	try {
-		connection = await getConnection();
-
-		// Insert user_id and generated pincode into the USERS table
-		const [result] = await connection.execute(`INSERT INTO USERS (user_id, pincode) VALUES (?, ?)`, [user_id, pincode]);
-
-		// Optionally, send a response back to the client
-		res.status(200).json({ message: 'Pincode generated and stored successfully.', pincode });
-	} catch (error) {
-		console.error('Error inserting pincode:', error);
-		res.status(500).json({ error: 'An error occurred while storing the pincode.' });
-	} finally {
-		if (connection) {
-			await connection.end(); // Ensure the connection is closed
-		}
-	}
-});
-const cors = require('cors');
-app.use(cors({
-	origin: 'https://survey-g8oineryc-edasa235s-projects.vercel.app',
-	methods: ['GET', 'POST'],
-}));
