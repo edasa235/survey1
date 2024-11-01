@@ -27,7 +27,7 @@ app.use('/api/answers', answersRouter);
 
 // Start the server
 app.listen(port, () => {
-	console.log(`Server is running on http://localhost:${port}`);
+	console.log(`Server is running on  https://survey-edasa235s-projects.vercel.app/`);
 });
 
 

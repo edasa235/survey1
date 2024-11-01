@@ -1,4 +1,6 @@
 import mysql from 'mysql2/promise';
+import { Router } from 'express';
+const router = Router();
 
 async function getConnection() {
 	const dbConfig = {
@@ -10,33 +12,37 @@ async function getConnection() {
 	return mysql.createConnection(dbConfig);
 }
 
-export default async (req, res) => {
+// Answers endpoint
+router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-	if (req.method === 'POST') {
-		const { responses, user_id } = req.body;
+	const { responses, user_id } = req.body;
 
-		try {
-			const connection = await getConnection();
+	try {
+		const connection = await getConnection();
 
-			for (const questionId in responses) {
-				const answerText = responses[questionId];
-				await connection.execute(
-					'INSERT INTO answers (user_id, question_id, answer_text) VALUES (?, ?, ?)',
-					[user_id, questionId, answerText]
-				);
-			}
-
-			await connection.end();
-			res.status(201).json({ message: 'Answers stored successfully' });
-		} catch (error) {
-			console.error('Error storing answers:', error);
-			res.status(500).json({ error: 'Failed to store answers' });
+		for (const questionId in responses) {
+			const answerText = responses[questionId];
+			await connection.execute(
+				'INSERT INTO answers (user_id, question_id, answer_text) VALUES (?, ?, ?)',
+				[user_id, questionId, answerText]
+			);
 		}
-	} else {
-		res.setHeader('Allow', ['POST']);
-		res.status(405).end(`Method ${req.method} Not Allowed`);
+
+		await connection.end();
+		res.status(201).json({ message: 'Answers stored successfully' });
+	} catch (error) {
+		console.error('Error storing answers:', error);
+		res.status(500).json({ error: 'Failed to store answers' });
 	}
-};
+});
+
+// Handle OPTIONS requests
+router.options('/', (req, res) => {
+	res.setHeader('Allow', ['POST']);
+	res.status(200).end();
+});
+
+export default router;
