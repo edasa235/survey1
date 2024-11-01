@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "start": "concurrently \"npm run dev\" \"cd backend && node server.js\" \"cd survey && npm run dev\"",
+    "start": "npm run dev\ncd backend && node server.js\ncd survey && npm run dev\n",
     "sanity": "cd sanity && sanity start",
     "postinstall": "npm install -g @sanity/cli"
   },
