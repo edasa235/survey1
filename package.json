@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "start": "concurrently \"npm run dev\" \"cd backend && node server.js\" \"cd survey && sanity start\""
+    "start": "concurrently \"npm run dev\" \"cd backend && node server.js\" \"cd survey && npm run sanity\""
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
