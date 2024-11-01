@@ -13,6 +13,11 @@ import answersRouter from './api/answers.js';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000
+const express = require('express')
+
+app.listen(port, '0.0.0.0', () => {
+	console.log(`Server running on port ${port}`)
+})
 
 app.use(cors({ origin: '*' })); // Allow all origins (or specify your frontend origin)
 app.use(bodyParser.json());
