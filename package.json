@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "start": "concurrently \"npm run dev\" \"cd backend && node server.js\" \"cd survey && sanity start\""
+
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
@@ -31,11 +31,11 @@
   },
   "dependencies": {
     "@sanity/client": "^6.22.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
     "mysql2": "^3.11.3",
     "pg": "^8.13.0",
     "uuid": "^10.0.0"

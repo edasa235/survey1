@@ -1,6 +1,8 @@
 import { createClient } from '@sanity/client';
 import { Router } from 'express';
+
 const router = Router();
+
 
 const sanity = createClient({
 	projectId: process.env.SANITY_PROJECT_ID,
@@ -9,7 +11,10 @@ const sanity = createClient({
 	token: process.env.SANITY_TOKEN,
 	useCdn: false,
 });
-
+console.log('Sanity Project ID:', process.env.SANITY_PROJECT_ID);
+console.log('Sanity Dataset:', process.env.SANITY_DATASET);
+console.log('Sanity Token:', process.env.SANITY_TOKEN);
+console.log(sanity);
 // Questions endpoint
 router.get('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
