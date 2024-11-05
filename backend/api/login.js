@@ -43,5 +43,9 @@ router.post('/', async (req, res) => {
 		res.status(500).json({ error: 'Login failed' });
 	}
 });
+router.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
+});
+
 
 export default router;

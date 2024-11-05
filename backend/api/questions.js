@@ -36,5 +36,9 @@ router.options('/', (req, res) => {
 	res.setHeader('Allow', ['GET']);
 	res.status(200).end();
 });
+router.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
+});
+
 
 export default router;

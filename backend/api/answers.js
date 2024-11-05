@@ -1,6 +1,7 @@
 import mysql from 'mysql2/promise';
 import { Router } from 'express';
 
+
 const router = Router();
 
 // MySQL database configuration
@@ -42,6 +43,9 @@ router.post('/', async (req, res) => {
 		console.error('Error storing answers:', error);
 		res.status(500).json({ error: 'Failed to store answers' });
 	}
+});
+router.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
 });
 
 export default router;

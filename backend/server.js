@@ -15,7 +15,7 @@ import questionsRouter from './api/questions.js';
 import answersRouter from './api/answers.js';
 
 const app = express();
-const port = process.env.PORT || 3000
+const port =  3000;
 
 app.use(cors({ origin: '*' })); // Allow all origins (or specify your frontend origin)
 app.use(bodyParser.json());
@@ -43,3 +43,5 @@ dotenv.config();
 app.get('/', (req, res) => {
 	res.send('Welcome to the Express Server!');
 });
+
+console.log(port)
