@@ -14,7 +14,7 @@
     let user_id = null;
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/questions');
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/questions');
             if (response.ok) {
                 survey = await response.json();
                 console.log(survey); // Check the structure of the survey data
@@ -29,7 +29,7 @@
 
     async function handleSubmit() {
         try {
-            const response = await fetch('http://localhost:3000/api/answers', {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/answers', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -60,7 +60,7 @@
     async function handlesignup(event) {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -82,7 +82,7 @@
         event.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
