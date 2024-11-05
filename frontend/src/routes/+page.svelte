@@ -1,5 +1,5 @@
 <script>
-    import { client } from '../sanityClient';
+    import { client } from '../sanityClient.js';
     import { onMount } from 'svelte';
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -118,7 +118,7 @@
     <nav class="max-w-7xl mx-auto flex justify-between items-center">
         <div class="text-white text-lg font-bold">Survey App</div>
         <ul class="flex space-x-6">
-            <li><a href="/" class="text-gray-300 hover:text-white">Home</a></li>
+            <li><a href="/frontend/static" class="text-gray-300 hover:text-white">Home</a></li>
             <li><a href="/about" class="text-gray-300 hover:text-white">About</a></li>
             <li><a href="/contact" class="text-gray-300 hover:text-white">Contact</a></li>
         </ul>
