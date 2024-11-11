@@ -116,7 +116,7 @@
 
 <header class="bg-gray-800 p-4">
     <nav class="max-w-7xl mx-auto flex justify-between items-center">
-        <div class="text-white text-lg font-bold">Survey App</div>
+        <div class="text-white text-lg font-bold">Survey App HELLO</div>
         <ul class="flex space-x-6">
             <li><a href="/frontend/static" class="text-gray-300 hover:text-white">Home</a></li>
             <li><a href="/about" class="text-gray-300 hover:text-white">About</a></li>
