@@ -220,7 +220,7 @@
             <div class="modal-header">Login</div>
             <form on:submit|preventDefault={handleLogin}>
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username1</label>
                     <input id="username" type="text" bind:value={username} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
                 </div>
 
