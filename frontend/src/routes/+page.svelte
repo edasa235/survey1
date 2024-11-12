@@ -7,10 +7,17 @@
     let responses = {};
     let showSignUpModal = false;
     let showLoginModal = false;
+    let showPinCodeModal = false;
     let isloggedin = false;
 
     let username = '';
     let password = '';
+    let pinCode = {code: ""};
+    let pinCodeError = false;
+    let pinCodeErrorMessage = "Pin Code error";
+    const digits = ["0","1","2","3","4","5","6","7","8","9"]
+
+
     let user_id = null;
     onMount(async () => {
         try {
@@ -51,10 +58,23 @@
 
     function toggleSignUpModal() {
         showSignUpModal = !showSignUpModal;
+        password = ""
+        username = ""
     }
 
     function toggleLoginModal() {
         showLoginModal = !showLoginModal;
+        password = ""
+        username = ""
+    }
+
+    function togglePinCodeModal() {
+        
+        showPinCodeModal = !showPinCodeModal;
+        password = ""
+        username = ""
+        
+        //document.getElementById(test1).focus()
     }
 
     async function handlesignup(event) {
@@ -84,9 +104,7 @@
         try {
             const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
             const data = await response.json();
@@ -112,6 +130,62 @@
         }
     }
 
+    async function handlePinCode(event) {
+        event.preventDefault();
+
+
+
+        let isNumber = true
+        if(pinCode.code.length == 4) {
+            for (let numIndex = 0; numIndex < 4; numIndex++) {
+                if(!digits.includes(pinCode.code.charAt(numIndex))) {isNumber = false; pinCodeErrorMessage = "Pin Code needs to be made of numbers"}
+                
+                
+            }
+        }
+
+        else{isNumber = false; pinCodeErrorMessage = "Pin Code needs to be 4 digits long"}
+
+        if(isNumber) {
+            pinCodeError = false
+            console.log(pinCode.code)
+            JSON.stringify(pincode.code)
+        }
+
+        else {
+            //document.getElementById("pincodeError").innerHTML = "abcde"
+            pinCodeError = true
+            
+        }
+
+
+        /*
+        try {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Login successful');
+
+                // Close the login modal
+                showLoginModal = false; // Close the login modal
+
+                // Show a confirmation message
+                alert("Pin code successful!");
+            } else {
+                console.error('Pin code Error:', data.error);
+            }
+        } catch (error) {
+            console.error('Pin code Error:', error);
+        }
+        */
+    }
+
+    //togglePinCodeModal()
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -125,6 +199,7 @@
         <div>
             <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
             <button class="px-4 py-2 bg-blue-500 text-white rounded-md ml-4" on:click={toggleLoginModal}>Login</button>
+            <button class="px-4 py-2 bg-orange-500 text-white rounded-md ml-4" on:click={togglePinCodeModal}>Pin Code</button>
         </div>
     </nav>
 </header>
@@ -186,6 +261,7 @@
     .modal-header { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
     .question-container { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f7fafc; }
     .question-text { font-weight: bold; margin-bottom: 0.5rem; }
+    .pincode {letter-spacing: 10px;}
 </style>
 
 <!-- Sign Up Modal -->
@@ -220,7 +296,7 @@
             <div class="modal-header">Login</div>
             <form on:submit|preventDefault={handleLogin}>
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">Username1</label>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                     <input id="username" type="text" bind:value={username} class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
                 </div>
 
@@ -234,6 +310,29 @@
                     <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Login</button>
                 </div>
             </form>
+        </div>
+    </div>
+{/if}
+
+<!-- Pin Code Modal -->
+{#if showPinCodeModal}
+    <div class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Pin Code</div>
+            <form on:submit|preventDefault={handlePinCode}>
+                <div>
+                    <input id="pincode" type="text" maxlength="4" bind:value={pinCode.code} class="mt-1 block w-full p-2 border border-gray-300 rounded-md text-xl text-center" required />
+                </div>
+
+                <div class="mt-6 flex justify-between">
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md" on:click={togglePinCodeModal}>Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Start</button>
+                </div>
+            </form>
+            {#if pinCodeError} 
+                <br>
+                <p id="pincodeError" class="text-red-600" >{pinCodeErrorMessage}</p>
+            {/if}
         </div>
     </div>
 {/if}
