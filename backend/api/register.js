@@ -1,25 +1,22 @@
-import mysql from 'mysql2/promise';
+import pkg from 'pg';
 import bcrypt from 'bcrypt';
-import { Router } from 'express';
+import express from 'express';
 
+const { Pool } = pkg;
+const router = express.Router();
 
-
-const router = Router();
-
-// MySQL database configuration
-const dbConfig = {
+const pool = new Pool({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
 	password: process.env.DB_PASS,
-	database: process.env.DB_NAME
-};
-console.log(dbConfig);
-// Function to establish a database connection
+	database: process.env.DB_NAME,
+	port: 5432 // Default PostgreSQL port
+});
+
 async function getConnection() {
-	return mysql.createConnection(dbConfig);
+	return pool.connect();
 }
 
-// Registration endpoint
 router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -29,20 +26,28 @@ router.post('/', async (req, res) => {
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const connection = await getConnection();
-		const [result] = await connection.execute(
-			'INSERT INTO users (username, password) VALUES (?, ?)',
+		const client = await getConnection();
+
+		// First, insert the user without RETURNING clause
+		await client.query(
+			'INSERT INTO users (username, password) VALUES ($1, $2);',
 			[username, hashedPassword]
 		);
-		await connection.end();
-		res.status(201).json({ user_id: result.insertId, username });
+
+		const result = await client.query(
+			'SELECT id FROM users WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
+			[username]
+		);
+
+		client.release();
+
+		if (result.rows && result.rows.length > 0) {
+			res.status(201).json({ id: result.rows[0].id, username });
+		}
 	} catch (error) {
 		console.error('Registration Error:', error);
 		res.status(500).json({ error: 'Registration failed' });
 	}
-});
-router.get('/', (req, res) => {
-	res.send('Welcome to the Express Server!');
 });
 
 export default router;
