@@ -73,7 +73,7 @@
         showPinCodeModal = !showPinCodeModal;
         password = ""
         username = ""
-        
+
         //document.getElementById(test1).focus()
     }
 
@@ -139,8 +139,7 @@
         if(pinCode.code.length == 4) {
             for (let numIndex = 0; numIndex < 4; numIndex++) {
                 if(!digits.includes(pinCode.code.charAt(numIndex))) {isNumber = false; pinCodeErrorMessage = "Pin Code needs to be made of numbers"}
-                
-                
+
             }
         }
 
@@ -155,11 +154,7 @@
         else {
             //document.getElementById("pincodeError").innerHTML = "abcde"
             pinCodeError = true
-            
         }
-
-
-        /*
         try {
             const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
                 method: 'POST',
@@ -182,7 +177,7 @@
         } catch (error) {
             console.error('Pin code Error:', error);
         }
-        */
+
     }
 
     //togglePinCodeModal()
