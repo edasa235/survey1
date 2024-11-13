@@ -1,7 +1,9 @@
 import express from 'express';
 import pool from '../db.js';
-import app from 'bcrypt/promises.js'; // Corrected import
-app.use(express.json());
+import bcrypt from 'bcrypt'; // Import bcrypt correctly
+
+const app = express(); // Create an Express instance
+app.use(express.json()); // Add JSON middleware
 
 const router = express.Router();
 
