@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="survey@localhost" uuid="4baaee8f-c07a-4e3e-b051-002f87f9c7b5">
+    <data-source source="LOCAL" name="verceldb@ep-rapid-boat-a46j4y9a-pooler.us-east-1.aws.neon.tech" uuid="4f1f82f5-32be-43ce-8652-7e44c1fef9a5">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/survey</jdbc-url>
+      <jdbc-url>jdbc:postgresql://ep-rapid-boat-a46j4y9a-pooler.us-east-1.aws.neon.tech:5432/verceldb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

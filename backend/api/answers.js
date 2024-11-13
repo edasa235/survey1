@@ -10,7 +10,7 @@ const dbConfig = {
 	user: process.env.DB_USER,
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
-	port: process.env.DB_PORT || 5432, // PostgreSQL default port
+	DP_PORT: process.env.DB_PORT,
 };
 
 const pool = new Pool(dbConfig);

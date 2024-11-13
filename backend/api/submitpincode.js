@@ -2,7 +2,7 @@ import pkg from 'pg'
 import bcrypt from 'bcrypt'
 import router from './answers.js'
 
-import {password} from 'pg/lib/defaults.js'
+
 const { Pool } = pkg;
 
 const pool = new Pool({
@@ -11,6 +11,7 @@ const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
+  DP_PORT: process.env.DB_PORT,
 })
 
 async function getConnection() {

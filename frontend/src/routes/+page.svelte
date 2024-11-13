@@ -148,7 +148,7 @@
         if(isNumber) {
             pinCodeError = false
             console.log(pinCode.code)
-            JSON.stringify(pincode.code)
+            JSON.stringify(pinCode.code)
         }
 
         else {

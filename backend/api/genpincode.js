@@ -1,10 +1,20 @@
 import express from 'express';
-import pool from '../db.js';
-import bcrypt from 'bcrypt'; // Import bcrypt correctly
+
+import {Pool} from 'pg' // Import bcrypt correctly
 
 const app = express(); // Create an Express instance
 app.use(express.json()); // Add JSON middleware
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  DP_PORT: process.env.DB_PORT,
+});
 
+async function getConnection() {
+  return pool.connect();
+}
 const router = express.Router();
 
 router.post('/', async (req, res) => {

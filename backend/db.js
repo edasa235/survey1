@@ -1,17 +1,18 @@
-import pkg from 'pg';
+import pg from 'pg';
 import dotenv from 'dotenv';
-
-// Load environment variables
+const { Pool } = pg;
 dotenv.config();
-
-const { Pool } = pkg;
 
 const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 5432,  // Default port is 5432
+  port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false,  // Allows connection without verifying SSL certificate
+  },
 });
+
 
 export default pool;
