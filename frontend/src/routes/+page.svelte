@@ -191,6 +191,7 @@
             <li><a href="/frontend/static" class="text-gray-300 hover:text-white">Home</a></li>
             <li><a href="/about" class="text-gray-300 hover:text-white">About</a></li>
             <li><a href="/contact" class="text-gray-300 hover:text-white">Contact</a></li>
+            <li><a href="/admin" class="text-gray-300 hover:text-white"> Admin page                            </a></li>
         </ul>
         <div>
             <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
