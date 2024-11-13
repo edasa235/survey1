@@ -1,7 +1,7 @@
 import pkg from 'pg'
 import bcrypt from 'bcrypt'
 import router from './answers.js'
-import clent from 'express'
+
 import {password} from 'pg/lib/defaults.js'
 const { Pool } = pkg;
 
