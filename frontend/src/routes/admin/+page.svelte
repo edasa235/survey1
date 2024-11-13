@@ -1,8 +1,35 @@
 
 <script>
     let showPinCodeModal = false
-    let pinCodeGenerated = Math.floor(1000 + Math.random()*9000)
+    let pinCodesGenerating = 5
+    let pinCodes = ["1245","1245","1245"]
+    let pinCodesString = ""
 
+    function generateCode() {return(String(Math.floor(1000 + Math.random()*9000)))}
+
+    function generatePinCodes() {
+        if(pinCodesGenerating > 2000) {pinCodesGenerating = 2000}
+
+        pinCodesString = ""
+        pinCodes = []
+        let pinCodeGenerated = ""
+        for (let i = 0; i < pinCodesGenerating; i++) {
+            pinCodeGenerated = generateCode()
+            while (pinCodes.includes(pinCodeGenerated)) {
+                pinCodeGenerated = generateCode()
+            }
+            pinCodes.push(pinCodeGenerated)
+        }
+
+        for (let i = 0; i < pinCodesGenerating; i++) {
+            pinCodesString += pinCodes[i]
+            if(i != pinCodesGenerating-1) {
+                pinCodesString += "\n"
+            }
+        }
+        
+        
+    }
     /*
     import { client } from '../sanityClient.js';
     import { onMount } from 'svelte';
@@ -159,14 +186,20 @@
 {#if showPinCodeModal}
     <div class="modal">
         <div class="modal-content">
-            <div class="modal-header">Generate code</div>
+            <div class="modal-header">Generate Pin-Codes</div>
             
-            
-            <p id="pincodeError" class="font-bold" >{pinCodeGenerated}</p>
-            <div class="mt-6 flex justify-between">
-                <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md" on:click={togglePinCodeModal}>Close</button>
-                
-            </div>
+            <form on:submit|preventDefault={generatePinCodes}>
+                <div>
+                    <input id="pincode" type="number" bind:value={pinCodesGenerating} style="width: 30%;" class="mt-1 w-full p-2 border border-gray-300 rounded-md text-xl text-center" required />
+                    <button type="submit" style="width: 68%;" class="mt-1 w-full p-2 border border-gray-300 bg-blue-500 text-white rounded-md text-xl text-center">Generate</button>
+                    
+<textarea id="pincodesgenerated" name="pin codes generated" class="mt-1 block w-full p-2 border border-gray-300 rounded-md text-xl" rows="4" cols="30">{pinCodesString}</textarea>
+                </div>
+
+                <div class="mt-6 flex justify-between">
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md" on:click={togglePinCodeModal}>Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 {/if}
