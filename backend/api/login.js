@@ -1,6 +1,7 @@
 import pkg from 'pg';
-import bcrypt from 'bcrypt'
-import router from './answers.js'
+import bcrypt from 'bcrypt';
+import router from './answers.js';
+
 const { Pool } = pkg;
 
 const pool = new Pool({
@@ -8,12 +9,13 @@ const pool = new Pool({
 	user: process.env.DB_USER,
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
-	DP_PORT: process.env.DB_PORT,
+	port: process.env.DB_PORT, // corrected from DP_PORT to port
 });
 
 async function getConnection() {
 	return pool.connect();
 }
+
 router.post('/', async (req, res) => {
 	const { username, password } = req.body;
 	try {
@@ -36,7 +38,7 @@ router.post('/', async (req, res) => {
 		console.error('Login Error:', error);
 		res.status(500).json({ error: 'Login failed' });
 	}
-
 });
 
 export default router;
+

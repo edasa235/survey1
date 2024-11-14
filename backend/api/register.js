@@ -10,7 +10,7 @@ const pool = new Pool({
 	user: process.env.DB_USER,
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
-	DP_PORT: process.env.DB_PORT,
+	port: process.env.DB_PORT, // corrected from DP_PORT to port
 });
 
 async function getConnection() {

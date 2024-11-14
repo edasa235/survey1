@@ -1,26 +1,27 @@
 import express from 'express';
-
-
 import pkg from 'pg';
-const {Pool} = pkg;
 
+const { Pool } = pkg;
 const app = express(); // Create an Express instance
 app.use(express.json()); // Add JSON middleware
+
 const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  DP_PORT: process.env.DB_PORT,
+  port: process.env.DB_PORT, // corrected from DP_PORT to port
 });
 
 async function getConnection() {
   return pool.connect();
 }
+
 const router = express.Router();
 
+// Route to generate a new pincode
 router.post('/', async (req, res) => {
-  console.log("Received a request on / route");
+  console.log("Received a request on /generate route");
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -40,7 +41,7 @@ router.post('/', async (req, res) => {
     // Respond with the generated pincode for the admin to distribute
     res.status(201).json({
       message: 'Pincode generated successfully',
-      generatedPincode: generatedPincode
+      generatedPincode: generatedPincode,
     });
   } catch (error) {
     console.error("Error generating pincode:", error);
