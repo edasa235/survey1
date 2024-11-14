@@ -1,6 +1,8 @@
 import express from 'express';
 
-import {Pool} from 'pg' // Import bcrypt correctly
+
+import pkg from 'pg';
+const {Pool} = pkg;
 
 const app = express(); // Create an Express instance
 app.use(express.json()); // Add JSON middleware
