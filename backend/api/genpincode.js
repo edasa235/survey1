@@ -11,6 +11,9 @@ const pool = new Pool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT, // corrected from DP_PORT to port
+  ssl: {
+    rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
+  }
 });
 
 async function getConnection() {

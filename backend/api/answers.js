@@ -11,6 +11,9 @@ const dbConfig = {
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
 	DP_PORT: process.env.DB_PORT,
+	ssl: {
+		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
+	}
 };
 
 const pool = new Pool(dbConfig);
