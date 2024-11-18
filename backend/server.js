@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
+import displayRouter from './api/export.js'
 import submitpincode from './api/submitpincode.js'
 import pincodeRouter from './api/genpincode.js';
 import loginRouter from './api/login.js';
@@ -30,6 +31,7 @@ pool.query('SELECT NOW()', (err, res) => {
 });
 
 // Use API routes
+app.use(`/api/display`, displayRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/register', registerRouter);
 app.use('/api/questions', questionsRouter);

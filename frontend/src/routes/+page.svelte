@@ -133,54 +133,71 @@
     async function handlePinCode(event) {
         event.preventDefault();
 
+        const digits = "0123456789";
+        let pinCodeError = false;
+        let pinCodeErrorMessage = "";
+        const pinCodeInput = pinCode.code; // Assuming pinCode is an object with a 'code' property
 
-
-        let isNumber = true
-        if(pinCode.code.length == 4) {
-            for (let numIndex = 0; numIndex < 4; numIndex++) {
-                if(!digits.includes(pinCode.code.charAt(numIndex))) {isNumber = false; pinCodeErrorMessage = "Pin Code needs to be made of numbers"}
-
+        // Validate if the pin code is 4 digits long and numeric
+        if (pinCodeInput.length === 4) {
+            for (let i = 0; i < 4; i++) {
+                if (!digits.includes(pinCodeInput.charAt(i))) {
+                    pinCodeError = true;
+                    pinCodeErrorMessage = "Pin Code needs to be made of numbers.";
+                    break;
+                }
             }
+        } else {
+            pinCodeError = true;
+            pinCodeErrorMessage = "Pin Code needs to be 4 digits long.";
         }
 
-        else{isNumber = false; pinCodeErrorMessage = "Pin Code needs to be 4 digits long"}
-
-        if(isNumber) {
-            pinCodeError = false
-            console.log(pinCode.code)
-            JSON.stringify(pinCode.code)
+        if (pinCodeError) {
+            alert(pinCodeErrorMessage);
+            return; // Exit if validation fails
         }
 
-        else {
-            //document.getElementById("pincodeError").innerHTML = "abcde"
-            pinCodeError = true
-        }
         try {
+            // Make the API call to validate the pincode
             const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ genpincode: pinCodeInput })
             });
+
             const data = await response.json();
 
             if (response.ok) {
-                console.log('Login successful');
-
-                // Close the login modal
-                showLoginModal = false; // Close the login modal
-
-                // Show a confirmation message
+                console.log('Pin code is valid:', data.message);
                 alert("Pin code successful!");
+                // Proceed with any additional logic (e.g., opening the survey)
             } else {
-                console.error('Pin code Error:', data.error);
+                console.error('Pin code validation error:', data.error);
+                alert(data.error || "An error occurred while validating the pin code.");
             }
         } catch (error) {
             console.error('Pin code Error:', error);
+            alert("An error occurred. Please try again later.");
         }
-
     }
 
+
     //togglePinCodeModal()
+    const downloadexport = async () => {
+        const response = await fetch('https://backend-survey-32fa.onrender.com/api/downloadexport')
+        if (response.ok) {
+            const blob = await response.blob();
+            const url= url.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `answers.csv`;
+            a.click();
+            url.revokeObjectURL(url);
+
+        } else {
+            alert("failed to export data");
+        }
+    }
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -192,6 +209,7 @@
             <li><a href="/contact" class="text-gray-300 hover:text-white">Contact</a></li>
         </ul>
         <div>
+            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={downloadexport()}>Export Survey Data</button>
             <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
             <button class="px-4 py-2 bg-blue-500 text-white rounded-md ml-4" on:click={toggleLoginModal}>Login</button>
             <button class="px-4 py-2 bg-orange-500 text-white rounded-md ml-4" on:click={togglePinCodeModal}>Pin Code</button>

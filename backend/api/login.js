@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
 	const { username, password } = req.body;
 	try {
 		const client = await getConnection();
-		const result = await client.query('SELECT * FROM users WHERE username = $1', [username]);
+		const result = await client.query('SELECT * FROM admin WHERE username = $1', [username]);
 		client.release();
 
 		if (result.rows.length > 0) {

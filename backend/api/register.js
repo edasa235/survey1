@@ -33,12 +33,12 @@ router.post('/', async (req, res) => {
 
 		// First, insert the user without RETURNING clause
 		await client.query(
-			'INSERT INTO users (username, password) VALUES ($1, $2);',
+			'INSERT INTO admin (username, password) VALUES ($1, $2);',
 			[username, hashedPassword]
 		);
 
 		const result = await client.query(
-			'SELECT id FROM users WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
+			'SELECT admin_id FROM admin WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
 			[username]
 		);
 
