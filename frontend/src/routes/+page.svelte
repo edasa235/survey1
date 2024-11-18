@@ -159,7 +159,7 @@
 
         try {
             // Make the API call to validate the pincode
-            const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/submitpincode', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ genpincode: pinCodeInput })
@@ -184,7 +184,7 @@
 
     //togglePinCodeModal()
     const downloadexport = async () => {
-        const response = await fetch('https://backend-survey-32fa.onrender.com/api/downloadexport')
+        const response = await fetch('https://backend-survey-32fa.onrender.com/api/export')
         if (response.ok) {
             const blob = await response.blob();
             const url= url.createObjectURL(blob);
