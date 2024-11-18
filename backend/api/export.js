@@ -1,9 +1,10 @@
-const express = require('express');
-const { Client } = require('pg'); // or mysql2 if using MySQL
-const router = express.Router();
-const { Parser } = require('json2csv'); // For CSV conversion
+import express from 'express';
+import { Client } from 'pg'; // For PostgreSQL
+import { Parser } from 'json2csv'; // For CSV conversion
 
-// Database connection (ensure this matches your setup)
+const router = express.Router();
+
+// Database connection
 const client = new Client({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -13,7 +14,7 @@ const client = new Client({
   ssl: { rejectUnauthorized: false }, // Use SSL for secure connection
 });
 
-client.connect();
+await client.connect();
 
 router.get('/', async (req, res) => {
   try {
