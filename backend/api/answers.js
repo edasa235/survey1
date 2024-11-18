@@ -10,7 +10,7 @@ const dbConfig = {
 	user: process.env.DB_USER,
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
-	DP_PORT: process.env.DB_PORT,
+	port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
 	ssl: {
 		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
 	}

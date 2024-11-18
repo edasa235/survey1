@@ -22,6 +22,9 @@ async function getConnection() {
 }
 
 router.get('/', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   const client = await getConnection();
   try {
     const result = await client.query('SELECT * FROM answers'); // Adjust table name and query as needed
