@@ -133,27 +133,13 @@
     async function handlePinCode(event) {
         event.preventDefault();
 
-        const digits = "0123456789";
+        const pinCodeInput = pinCode.code; // Assuming `pinCode` is an object with a `code` property
         let pinCodeError = false;
-        let pinCodeErrorMessage = "";
-        const pinCodeInput = pinCode.code; // Assuming pinCode is an object with a 'code' property
 
-        // Validate if the pin code is 4 digits long and numeric
-        if (pinCodeInput.length === 4) {
-            for (let i = 0; i < 4; i++) {
-                if (!digits.includes(pinCodeInput.charAt(i))) {
-                    pinCodeError = true;
-                    pinCodeErrorMessage = "Pin Code needs to be made of numbers.";
-                    break;
-                }
-            }
-        } else {
+        // Validate if the pincode is a 4-digit numeric string
+        if (!/^\d{4}$/.test(pinCodeInput)) {
             pinCodeError = true;
-            pinCodeErrorMessage = "Pin Code needs to be 4 digits long.";
-        }
-
-        if (pinCodeError) {
-            alert(pinCodeErrorMessage);
+            alert("Pin Code must be a 4-digit number.");
             return; // Exit if validation fails
         }
 
@@ -168,36 +154,42 @@
             const data = await response.json();
 
             if (response.ok) {
-                console.log('Pin code is valid:', data.message);
-                alert("Pin code successful!");
-                // Proceed with any additional logic (e.g., opening the survey)
+                console.log('Pincode is valid:', data.message);
+                alert("Pincode validation successful!");
+                // Proceed with survey logic, e.g., redirect to the survey page
             } else {
-                console.error('Pin code validation error:', data.error);
-                alert(data.error || "An error occurred while validating the pin code.");
+                console.error('Pincode validation error:', data.error);
+                alert(data.error || "Failed to validate the pincode.");
             }
         } catch (error) {
-            console.error('Pin code Error:', error);
-            alert("An error occurred. Please try again later.");
+            console.error('Error validating pincode:', error);
+            alert("An error occurred while validating the pincode. Please try again later.");
         }
     }
 
-
-    //togglePinCodeModal()
-    const downloadexport = async () => {
-        const response = await fetch('https://backend-survey-32fa.onrender.com/api/export')
-        if (response.ok) {
-            const blob = await response.blob();
-            const url= url.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `answers.csv`;
-            a.click();
-            url.revokeObjectURL(url);
-
-        } else {
-            alert("failed to export data");
+    // Function to download the exported CSV
+    const downloadExport = async () => {
+        try {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/export');
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'answers.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert('Failed to export data');
+            }
+        } catch (error) {
+            console.error('Error downloading export:', error);
+            alert('An error occurred during the export');
         }
-    }
+    };
+
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -209,7 +201,7 @@
             <li><a href="/contact" class="text-gray-300 hover:text-white">Contact</a></li>
         </ul>
         <div>
-            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={downloadexport()}>Export Survey Data</button>
+            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={downloadExport()}>Export Survey Data</button>
             <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
             <button class="px-4 py-2 bg-blue-500 text-white rounded-md ml-4" on:click={toggleLoginModal}>Login</button>
             <button class="px-4 py-2 bg-orange-500 text-white rounded-md ml-4" on:click={togglePinCodeModal}>Pin Code</button>
