@@ -15,6 +15,8 @@ const pool = new Pool({
 		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
 	}
 });
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
 
 async function getConnection() {
 	return pool.connect();

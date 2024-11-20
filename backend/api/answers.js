@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
 	const { responses, user_id } = req.body;
 
 	try {
-		// Use PostgreSQL query
+		// Loop through the responses object and insert each answer into the database
 		for (const questionId in responses) {
 			const answerText = responses[questionId];
 			await pool.query(
