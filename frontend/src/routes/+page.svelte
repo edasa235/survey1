@@ -201,7 +201,7 @@
             <li><a href="/contact" class="text-gray-300 hover:text-white">Contact</a></li>
         </ul>
         <div>
-            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={downloadExport()}>Export Survey Data</button>
+            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={downloadExport}>Export Survey Data</button>
             <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
             <button class="px-4 py-2 bg-blue-500 text-white rounded-md ml-4" on:click={toggleLoginModal}>Login</button>
             <button class="px-4 py-2 bg-orange-500 text-white rounded-md ml-4" on:click={togglePinCodeModal}>Pin Code</button>
