@@ -1,23 +1,9 @@
 import pkg from 'pg';
 import bcrypt from 'bcrypt';
 import router from './answers.js';
-import dotenv from 'dotenv'
 
-
-
-dotenv.config();
-const { Pool } = pkg;
-const pool = new Pool({
-	host: process.env.PGHOST,
-	user: process.env.PGUSER,
-	password: process.env.PGPASSWORD,
-	database: process.env.PGDATABASE,
-	port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
-	ssl: {
-		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
-	}
-});
-
+import pool from './db.js'
+const client = await getConnection();
 async function getConnection() {
 	return pool.connect();
 }

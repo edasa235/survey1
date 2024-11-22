@@ -1,6 +1,7 @@
 import express from 'express';
 import pkg from 'pg';
 import dotenv from 'dotenv'
+import pool, {getConnection} from './db.js'
 
 
 
@@ -8,22 +9,7 @@ dotenv.config();
 const { Pool } = pkg;
 const app = express(); // Create an Express instance
 app.use(express.json()); // Add JSON middleware
-
-const pool = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
-  ssl: {
-    rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
-  }
-});
-
-async function getConnection() {
-  return pool.connect();
-}
-
+const client = await getConnection();
 const router = express.Router();
 
 // Route to generate a new pincode

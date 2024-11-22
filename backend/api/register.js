@@ -1,31 +1,12 @@
 import pkg from 'pg';
 import bcrypt from 'bcrypt';
 import express from 'express';
-import dotenv from 'dotenv'
+
+import {getConnection} from './db.js'
+import router from './export.js'
 
 
 
-dotenv.config();
-
-const { Pool } = pkg;
-const router = express.Router();
-
-const pool = new Pool({
-	host: process.env.PGHOST,
-	user: process.env.PGUSER,
-	password: process.env.PGPASSWORD,
-	database: process.env.PGDATABASE,
-	port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
-	ssl: {
-		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
-	}
-});
-console.log('PGHOST:', process.env.PGHOST);
-console.log('PGUSER:', process.env.PGUSER);
-
-async function getConnection() {
-	return pool.connect();
-}
 
 router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');

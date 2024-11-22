@@ -12,7 +12,7 @@ import loginRouter from './api/login.js';
 import registerRouter from './api/register.js';
 import questionsRouter from './api/questions.js';
 import answersRouter from './api/answers.js';
-import pool from './db.js';  // Import the pool connection from your db.js file
+import pool from './api/db.js';  // Import the pool connection from your db.js file
 
 const app = express();
 const port = process.env.PORT || 3000;
