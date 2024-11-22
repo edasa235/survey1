@@ -1,15 +1,19 @@
 import pkg from 'pg';
 const { Pool } = pkg;
 import { Router } from 'express';
+import dotenv from 'dotenv'
 
+
+
+dotenv.config();
 const router = Router();
 
 // PostgreSQL database configuration
 const dbConfig = {
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASS,
-	database: process.env.DB_NAME,
+	host: process.env.PGHOST,
+	user: process.env.PGUSER,
+	password: process.env.PGPASSWORD,
+	database: process.env.PGDATABASE,
 	port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
 	ssl: {
 		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
@@ -34,6 +38,7 @@ router.post('/', async (req, res) => {
 				'INSERT INTO answers (user_id, question_id, answer_text) VALUES ($1, $2, $3)',
 				[user_id, questionId, answerText]
 			);
+
 		}
 
 		res.status(201).json({ message: 'Answers stored successfully' });

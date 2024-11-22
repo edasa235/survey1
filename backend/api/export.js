@@ -6,14 +6,14 @@ const router = express.Router();
 const { Pool } = pkg;
 
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: Number(process.env.DB_PORT), // Convert port to number
+  host: process.env.PGHOST,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+  port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
   ssl: {
-    rejectUnauthorized: false,
-  },
+    rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
+  }
 });
 
 async function getConnection() {
@@ -30,12 +30,14 @@ router.get('/', async (req, res) => {
     res.header('Content-Type', 'text/csv');
     res.attachment('survey_answers.csv');
     res.send(csv);
+    console.log(`csv:`,csv)
   } catch (err) {
     console.error('Error exporting data:', err);
     res.status(500).send('Error exporting data');
   } finally {
     client.release();
   }
+
 });
 
 export default router;

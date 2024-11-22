@@ -1,22 +1,27 @@
 import pkg from 'pg';
 import bcrypt from 'bcrypt';
 import express from 'express';
+import dotenv from 'dotenv'
+
+
+
+dotenv.config();
 
 const { Pool } = pkg;
 const router = express.Router();
 
 const pool = new Pool({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASS,
-	database: process.env.DB_NAME,
+	host: process.env.PGHOST,
+	user: process.env.PGUSER,
+	password: process.env.PGPASSWORD,
+	database: process.env.PGDATABASE,
 	port: parseInt(process.env.DB_PORT, 3000), // Convert DB_PORT to a number
 	ssl: {
 		rejectUnauthorized: false, // This is to allow insecure SSL certificates (useful for services like Render)
 	}
 });
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_USER:', process.env.DB_USER);
+console.log('PGHOST:', process.env.PGHOST);
+console.log('PGUSER:', process.env.PGUSER);
 
 async function getConnection() {
 	return pool.connect();
@@ -35,12 +40,12 @@ router.post('/', async (req, res) => {
 
 		// First, insert the user without RETURNING clause
 		await client.query(
-			'INSERT INTO admin (username, password) VALUES ($1, $2);',
+			'INSERT INTO users (username, password) VALUES ($1, $2);',
 			[username, hashedPassword]
 		);
 
 		const result = await client.query(
-			'SELECT admin_id FROM admin WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
+			'SELECT user_id FROM users WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
 			[username]
 		);
 
