@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
+
 router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -11,14 +12,13 @@ router.post('/', async (req, res) => {
 
 	let { responses, user_id } = req.body;
 
-	// Generate a new UUID if user_id is not provided
-	if (!user_id) {
-		user_id = uuidv4();
+	// Validate or generate UUID
+	if (!user_id || !/^[0-9a-fA-F-]{36}$/.test(user_id)) {
+		user_id = uuidv4(); // Generate a new UUID if not valid or missing
 	}
 
-	const client = await getConnection(); // Fetch connection once
+	const client = await getConnection();
 	try {
-		// Loop through the responses object and insert each answer into the database
 		for (const questionId in responses) {
 			const answerText = responses[questionId];
 			await client.query(
@@ -32,8 +32,9 @@ router.post('/', async (req, res) => {
 		console.error('Error storing answers:', error);
 		res.status(500).json({ error: 'Failed to store answers' });
 	} finally {
-		client.release(); // Always release the client
+		client.release();
 	}
 });
+
 
 export default router;
