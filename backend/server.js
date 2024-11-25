@@ -15,7 +15,7 @@ import answersRouter from './api/answers.js';
 import pool from './api/db.js';  // Import the pool connection from your db.js file
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors({ origin: '*' }));
@@ -43,6 +43,7 @@ app.use('/api/submitpincode', submitpincode);
 app.get('/', (req, res) => {
 	res.send('Welcome to the Express Server!');
 });
+
 
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);

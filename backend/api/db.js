@@ -16,7 +16,7 @@ const pool = new Pool({
 
 // Exporting the pool object
 export default pool;
-
+console.log(pool)
 // Async function to get a connection
 export async function getConnection() {
   return pool.connect();
