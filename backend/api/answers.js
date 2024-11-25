@@ -1,6 +1,7 @@
 import express from 'express';
 import { getConnection } from './db.js';
-import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
+
 
 const router = express.Router();
 
@@ -12,10 +13,7 @@ router.post('/', async (req, res) => {
 	let { responses, user_id } = req.body;
 
 	// Generate a new UUID if user_id is not provided
-	if (!user_id) {
-		user_id = uuidv4();
-	}
-
+const hasheduser_id= await bcrypt.hash(user_id, 10);
 	const client = await getConnection(); // Fetch connection once
 	try {
 		// Loop through the responses object and insert each answer into the database
@@ -23,7 +21,7 @@ router.post('/', async (req, res) => {
 			const answerText = responses[questionId];
 			await client.query(
 				'INSERT INTO answers (user_id, question_id, answer_text) VALUES ($1, $2, $3)',
-				[user_id, questionId, answerText]
+				[hasheduser_id, questionId, answerText]
 			);
 		}
 
