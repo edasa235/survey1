@@ -1,7 +1,6 @@
 import express from 'express';
 import { getConnection } from './db.js';
 import bcrypt from 'bcrypt';
-import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 
 const router = express.Router();
 
@@ -13,11 +12,6 @@ router.post('/', async (req, res) => {
 
 	let { responses, user_id } = req.body;
 
-	// Validate that the user_id is a valid UUID
-	if (!uuidValidate(user_id)) {
-		return res.status(400).json({ error: 'Invalid user_id format' });
-	}
-
 	// Hash the user_id (for security, separate from UUID)
 	const hasheduser_id = await bcrypt.hash(user_id, 10);
 
@@ -28,7 +22,7 @@ router.post('/', async (req, res) => {
 			const answerText = responses[questionId];
 			await client.query(
 				'INSERT INTO answers (user_id, hashed_user_id, question_id, answer_text) VALUES ($1, $2, $3, $4)',
-				[user_id, hasheduser_id, questionId, answerText]  // Use UUID user_id and hashed version
+				[user_id, hasheduser_id, questionId, answerText]  // Use the user_id and hashed version
 			);
 		}
 
