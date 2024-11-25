@@ -1,15 +1,12 @@
-import pkg from 'pg';
+import express from 'express';
 import bcrypt from 'bcrypt';
-import router from './answers.js';
+import { getConnection } from './db.js'; // Corrected import
 
-import pool from './db.js'
-const client = await getConnection();
-async function getConnection() {
-	return pool.connect();
-}
+const router = express.Router();
 
 router.post('/', async (req, res) => {
 	const { username, password } = req.body;
+
 	try {
 		const client = await getConnection();
 		const result = await client.query('SELECT * FROM users WHERE username = $1', [username]);
@@ -33,4 +30,3 @@ router.post('/', async (req, res) => {
 });
 
 export default router;
-

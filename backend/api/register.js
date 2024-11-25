@@ -1,12 +1,8 @@
-import pkg from 'pg';
-import bcrypt from 'bcrypt';
 import express from 'express';
+import bcrypt from 'bcrypt';
+import { getConnection } from './db.js'; // Corrected import
 
-import {getConnection} from './db.js'
-import router from './export.js'
-
-
-
+const router = express.Router();
 
 router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -33,7 +29,7 @@ router.post('/', async (req, res) => {
 		client.release();
 
 		if (result.rows && result.rows.length > 0) {
-			res.status(201).json({ id: result.rows[0].id, username });
+			res.status(201).json({ id: result.rows[0].user_id, username }); // Adjusted to use `user_id` instead of `id`
 		}
 	} catch (error) {
 		console.error('Registration Error:', error);
