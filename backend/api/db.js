@@ -1,8 +1,12 @@
 import pg from 'pg';
 const { Pool } = pg; // Destructure Pool from the pg object
-
+import express from 'express';
 import dotenv from 'dotenv';
-import * as app from '@sanity/client/src/csm/studioPath.js'
+
+const app = express();
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express Server!');
+});
 
 dotenv.config();
 
