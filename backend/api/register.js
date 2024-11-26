@@ -1,7 +1,11 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import { getConnection } from './db.js';
-import * as app from '@sanity/client/src/csm/studioPath.js' // Corrected import
+
+const app = express();
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
+});
 
 const router = express.Router();
 

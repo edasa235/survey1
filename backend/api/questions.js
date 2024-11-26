@@ -2,7 +2,11 @@ import { createClient } from '@sanity/client';
 import { Router } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-
+import express from 'express';
+const app = express();
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
+});
 const router = Router();
 
 
@@ -37,9 +41,6 @@ router.get('/', async (req, res) => {
 router.options('/', (req, res) => {
 	res.setHeader('Allow', ['GET']);
 	res.status(200).end();
-});
-router.get('/', (req, res) => {
-	res.send('Welcome to the Express Server!');
 });
 
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import { getConnection } from './db.js';
+const app = express();
 
-import * as app from '@sanity/client/src/csm/studioPath.js'
 
 const router = express.Router();
 

@@ -1,7 +1,11 @@
 import express from 'express';
 import { json2csv } from 'json-2-csv';
 import { getConnection } from './db.js';
-import * as app from '@sanity/client/src/csm/studioPath.js'
+
+const app = express();
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express Server!');
+});
 
 const router = express.Router();
 
@@ -11,7 +15,7 @@ router.get('/', async (req, res) => {
     const result = await client.query('SELECT * FROM answers'); // Replace 'answers' with your actual table name
     const data = result.rows;
 
-    const csv = await json2csv(data); // Await conversion to CSV
+    const csv = json2csv(data); // Await conversion to CSV
     res.header('Content-Type', 'text/csv');
     res.attachment('survey_answers.csv');
     res.send(csv);
