@@ -1,18 +1,21 @@
 import express from 'express';
 import { getConnection } from './db.js';
-const app = express();
+import { v4 as uuidv4 } from 'uuid';
 
 
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-	// Set CORS headers
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
 	let { responses, user_id } = req.body;
 
+	// Validate or generate UUID
+	if (!user_id || typeof user_id !== 'string' || !user_id.match(/^[0-9a-fA-F-]{36}$/)) {
+		user_id = uuidv4(); // Generate a new UUID if invalid or not provided
+	}
 
 	const client = await getConnection(); // Fetch connection once
 	try {
@@ -21,7 +24,7 @@ router.post('/', async (req, res) => {
 			const answerText = responses[questionId];
 			await client.query(
 				'INSERT INTO answers (user_id, hashed_user_id, question_id, answer_text) VALUES ($1, $2, $3, $4)',
-				[user_id, user_id, questionId, answerText]  // Use the user_id and hashed version
+				[user_id, user_id, questionId, answerText]
 			);
 		}
 
@@ -35,9 +38,6 @@ router.post('/', async (req, res) => {
 		// Always release the client
 		client.release();
 	}
-});
-app.get('/', (req, res) => {
-	res.send('Welcome to the Express Server!');
 });
 
 export default router;
