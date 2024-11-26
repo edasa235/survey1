@@ -2,6 +2,7 @@ import pg from 'pg';
 const { Pool } = pg; // Destructure Pool from the pg object
 
 import dotenv from 'dotenv';
+import * as app from '@sanity/client/src/csm/studioPath.js'
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ const pool = new Pool({
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
   ssl: { rejectUnauthorized: false }, // Ensure SSL is configured correctly
+});
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express Server!');
 });
 
 // Exporting the pool object

@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { getConnection } from './db.js'; // Corrected import
+import { getConnection } from './db.js';
+import * as app from '@sanity/client/src/csm/studioPath.js' // Corrected import
 
 const router = express.Router();
 
@@ -35,6 +36,9 @@ router.post('/', async (req, res) => {
 		console.error('Registration Error:', error);
 		res.status(500).json({ error: 'Registration failed' });
 	}
+});
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
 });
 
 export default router;

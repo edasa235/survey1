@@ -1,6 +1,7 @@
 import express from 'express';
 import { getConnection } from './db.js';
-import bcrypt from 'bcrypt';
+
+import * as app from '@sanity/client/src/csm/studioPath.js'
 
 const router = express.Router();
 
@@ -12,8 +13,6 @@ router.post('/', async (req, res) => {
 
 	let { responses, user_id } = req.body;
 
-	// Hash the user_id (for security, separate from UUID)
-	const hasheduser_id = await bcrypt.hash(user_id, 10);
 
 	const client = await getConnection(); // Fetch connection once
 	try {
@@ -22,7 +21,7 @@ router.post('/', async (req, res) => {
 			const answerText = responses[questionId];
 			await client.query(
 				'INSERT INTO answers (user_id, hashed_user_id, question_id, answer_text) VALUES ($1, $2, $3, $4)',
-				[user_id, hasheduser_id, questionId, answerText]  // Use the user_id and hashed version
+				[user_id, user_id, questionId, answerText]  // Use the user_id and hashed version
 			);
 		}
 
@@ -36,6 +35,9 @@ router.post('/', async (req, res) => {
 		// Always release the client
 		client.release();
 	}
+});
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
 });
 
 export default router;

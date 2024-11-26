@@ -1,5 +1,6 @@
 import express from 'express';
 import { getConnection } from './db.js';
+import * as app from '@sanity/client/src/csm/studioPath.js'
 
 const router = express.Router();
 
@@ -32,6 +33,9 @@ router.post('/', async (req, res) => {
     console.error("Error generating pincode:", error);
     res.status(500).json({ error: 'Failed to generate pincode' });
   }
+});
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express Server!');
 });
 
 export default router;

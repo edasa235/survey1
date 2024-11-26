@@ -1,6 +1,7 @@
 import express from 'express';
 import { json2csv } from 'json-2-csv';
 import { getConnection } from './db.js';
+import * as app from '@sanity/client/src/csm/studioPath.js'
 
 const router = express.Router();
 
@@ -21,6 +22,9 @@ router.get('/', async (req, res) => {
   } finally {
     client.release(); // Always release the client
   }
+});
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express Server!');
 });
 
 export default router;
