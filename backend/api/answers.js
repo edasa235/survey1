@@ -2,8 +2,8 @@ import express from 'express';
 import { getConnection } from './db.js';
 import { v4 as uuidv4 } from 'uuid';
 
-
 const router = express.Router();
+
 router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -16,17 +16,19 @@ router.post('/', async (req, res) => {
 		user_id = uuidv4();
 	}
 	console.log('Incoming request body:', req.body);
-	console.log('Final user_id:', user_id); // Debugging log
-	console.log('Payload being sent:', { responses, user_id });
+	console.log('Final user_id:', user_id);
 
+	if (!responses || typeof responses !== 'object') {
+		return res.status(400).json({ error: 'Invalid responses format' });
+	}
 
 	const client = await getConnection();
 	try {
-		for (const questionId in responses) {
+		for (const questionId of Object.keys(responses)) {
 			const answerText = responses[questionId];
 			await client.query(
-				'INSERT INTO answers (user_id, hashed_user_id, question_id, answer_text) VALUES ($1, $2, $3, $4)',
-				[user_id, user_id, questionId, answerText]
+				'INSERT INTO answers (user_id, question_id, answer_text) VALUES ($1, $2, $3)',
+				[user_id, questionId, answerText] // Fixed the parameter order
 			);
 		}
 
@@ -38,7 +40,5 @@ router.post('/', async (req, res) => {
 		client.release();
 	}
 });
-
-
 
 export default router;

@@ -33,25 +33,40 @@
         }
     });
 
-
     async function handleSubmit() {
+        if (!responses || Object.keys(responses).length === 0) {
+            alert('Please answer all questions before submitting.');
+            return;
+        }
+
         try {
             const response = await fetch('https://backend-survey-32fa.onrender.com/api/answers', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ responses, user_id }) // Send user ID along with responses
+                body: JSON.stringify({
+                    responses,
+                    user_id // Optional: Send only if required by backend
+                })
             });
 
             const result = await response.json();
+            console.log('Submitting responses:', responses);
+            console.log('User ID:', user_id);
+            console.error('Submission failed:', result.error);
+
+
+
             if (response.ok) {
                 alert('Survey submitted successfully!');
             } else {
                 console.error('Survey submission failed:', result.error);
+                alert(`Submission failed: ${result.error}`);
             }
         } catch (error) {
             console.error('Error submitting survey:', error);
+            alert('An error occurred while submitting your survey. Please try again later.');
         }
     }
 
