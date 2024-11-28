@@ -135,9 +135,9 @@ router.get('/', async (req, res) => {
 
 						// Insert question into PostgreSQL
 						const insertQuestionQuery = `
-              INSERT INTO questions (question_id, survey_id, text, type, options) 
-              VALUES ($1, $2, $3, $4, $5)
-            `;
+							INSERT INTO questions (question_id, survey_id, text, type, options)
+							VALUES ($1, $2, $3, $4, $5)
+						`;
 						await client.query(insertQuestionQuery, [
 							questionId,
 							surveyId,

@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
 			const answerText = responses[questionId];
 			await client.query(
 				'INSERT INTO answers (user_id, question_id, answer_text) VALUES ($1, $2, $3)',
-				[user_id, user_id, questionId, answerText]
+				[user_id, questionId, answerText]
 			);
 		}
 
