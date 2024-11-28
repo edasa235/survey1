@@ -4,6 +4,9 @@ import { getConnection } from './db.js';
 
 const app = express();
 app.get('/', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.send('Welcome to the Express Server!');
 });
 
