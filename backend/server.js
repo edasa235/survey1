@@ -6,8 +6,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 import exportrouter from './api/export.js'
-import submitpincode from './api/submitpincode.js'
-import pincodeRouter from './api/genpincode.js';
+
 import loginRouter from './api/login.js';
 import registerRouter from './api/register.js';
 import questionsRouter from './api/questions.js';
@@ -36,8 +35,7 @@ app.use('/api/login', loginRouter);
 app.use('/api/register', registerRouter);
 app.use('/api/questions', questionsRouter);
 app.use('/api/answers', answersRouter);
-app.use('/api/pincode', pincodeRouter);
-app.use('/api/submitpincode', submitpincode);
+
 
 // Sample endpoint
 app.get('/', (req, res) => {

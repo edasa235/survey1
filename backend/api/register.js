@@ -1,6 +1,7 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
+
 import { getConnection } from './db.js';
+import bcrypt from 'bcrypt'
 
 const app = express();
 app.get('/', (req, res) => {
