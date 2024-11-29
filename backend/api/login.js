@@ -1,21 +1,17 @@
-import pkg from 'pg';
-import bcrypt from 'bcrypt'
-import router from './answers.js'
-const { Pool } = pkg;
+import express from 'express';
+import bcrypt from 'bcrypt';
+import { getConnection } from './db.js';
 
-const pool = new Pool({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASS,
-	database: process.env.DB_NAME,
-	port: 5432 // Default PostgreSQL port
+const app = express();
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
 });
 
-async function getConnection() {
-	return pool.connect();
-}
+const router = express.Router();
+
 router.post('/', async (req, res) => {
 	const { username, password } = req.body;
+
 	try {
 		const client = await getConnection();
 		const result = await client.query('SELECT * FROM users WHERE username = $1', [username]);
@@ -36,7 +32,6 @@ router.post('/', async (req, res) => {
 		console.error('Login Error:', error);
 		res.status(500).json({ error: 'Login failed' });
 	}
-
 });
 
 export default router;

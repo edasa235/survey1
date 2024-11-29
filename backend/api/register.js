@@ -1,21 +1,14 @@
-import pkg from 'pg';
-import bcrypt from 'bcrypt';
 import express from 'express';
 
-const { Pool } = pkg;
-const router = express.Router();
+import { getConnection } from './db.js';
+import bcrypt from 'bcrypt'
 
-const pool = new Pool({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASS,
-	database: process.env.DB_NAME,
-	port: 5432 // Default PostgreSQL port
+const app = express();
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
 });
 
-async function getConnection() {
-	return pool.connect();
-}
+const router = express.Router();
 
 router.post('/', async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,19 +28,22 @@ router.post('/', async (req, res) => {
 		);
 
 		const result = await client.query(
-			'SELECT id FROM users WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
+			'SELECT user_id FROM users WHERE username = $1 ORDER BY created_at DESC LIMIT 1;',
 			[username]
 		);
 
 		client.release();
 
 		if (result.rows && result.rows.length > 0) {
-			res.status(201).json({ id: result.rows[0].id, username });
+			res.status(201).json({ id: result.rows[0].user_id, username }); // Adjusted to use `user_id` instead of `id`
 		}
 	} catch (error) {
 		console.error('Registration Error:', error);
 		res.status(500).json({ error: 'Registration failed' });
 	}
+});
+app.get('/', (req, res) => {
+	res.send('Welcome to the Express Server!');
 });
 
 export default router;

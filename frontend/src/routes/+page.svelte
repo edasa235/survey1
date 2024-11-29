@@ -33,25 +33,40 @@
         }
     });
 
-
     async function handleSubmit() {
+        if (!responses || Object.keys(responses).length === 0) {
+            alert('Please answer all questions before submitting.');
+            return;
+        }
+
         try {
             const response = await fetch('https://backend-survey-32fa.onrender.com/api/answers', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ responses, user_id }) // Send user ID along with responses
+                body: JSON.stringify({
+                    responses,
+                    user_id // Optional: Send only if required by backend
+                })
             });
 
             const result = await response.json();
+            console.log('Submitting responses:', responses);
+            console.log('User ID:', user_id);
+            console.error('Submission failed:', result.error);
+
+
+
             if (response.ok) {
                 alert('Survey submitted successfully!');
             } else {
                 console.error('Survey submission failed:', result.error);
+                alert(`Submission failed: ${result.error}`);
             }
         } catch (error) {
             console.error('Error submitting survey:', error);
+            alert('An error occurred while submitting your survey. Please try again later.');
         }
     }
 
@@ -134,54 +149,63 @@
     async function handlePinCode(event) {
         event.preventDefault();
 
+        const pinCodeInput = pinCode.code; // Assuming `pinCode` is an object with a `code` property
+        let pinCodeError = false;
 
-
-        let isNumber = true
-        if(pinCode.code.length == 4) {
-            for (let numIndex = 0; numIndex < 4; numIndex++) {
-                if(!digits.includes(pinCode.code.charAt(numIndex))) {isNumber = false; pinCodeErrorMessage = "Pin Code needs to be made of numbers"}
-
-            }
+        // Validate if the pincode is a 4-digit numeric string
+        if (!/^\d{4}$/.test(pinCodeInput)) {
+            pinCodeError = true;
+            alert("Pin Code must be a 4-digit number.");
+            return; // Exit if validation fails
         }
 
-        else{isNumber = false; pinCodeErrorMessage = "Pin Code needs to be 4 digits long"}
-
-        if(isNumber) {
-            pinCodeError = false
-            console.log(pinCode.code)
-            JSON.stringify(pincode.code)
-        }
-
-        else {
-            //document.getElementById("pincodeError").innerHTML = "abcde"
-            pinCodeError = true
-        }
         try {
-            const response = await fetch('https://backend-survey-32fa.onrender.com/api/login', {
+            // Make the API call to validate the pincode
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/submitpincode', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ genpincode: pinCodeInput })
             });
+
             const data = await response.json();
 
             if (response.ok) {
-                console.log('Login successful');
-
-                // Close the login modal
-                showLoginModal = false; // Close the login modal
-
-                // Show a confirmation message
-                alert("Pin code successful!");
+                console.log('Pincode is valid:', data.message);
+                alert("Pincode validation successful!");
+                // Proceed with survey logic, e.g., redirect to the survey page
             } else {
-                console.error('Pin code Error:', data.error);
+                console.error('Pincode validation error:', data.error);
+                alert(data.error || "Failed to validate the pincode.");
             }
         } catch (error) {
-            console.error('Pin code Error:', error);
+            console.error('Error validating pincode:', error);
+            alert("An error occurred while validating the pincode. Please try again later.");
         }
-
     }
 
-    //togglePinCodeModal()
+    // Function to download the exported CSV
+    const downloadExport = async () => {
+        try {
+            const response = await fetch('https://backend-survey-32fa.onrender.com/api/export');
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'answers.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert('Failed to export data');
+            }
+        } catch (error) {
+            console.error('Error downloading export:', error);
+            alert('An error occurred during the export');
+        }
+    };
+
 </script>
 
 <header class="bg-gray-800 p-4">
@@ -194,6 +218,7 @@
             <li><a href="/admin" class="text-gray-300 hover:text-white"> Admin page                            </a></li>
         </ul>
         <div>
+            <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={downloadExport}>Export Survey Data</button>
             <button class="px-4 py-2 bg-green-500 text-white rounded-md" on:click={toggleSignUpModal}>Sign Up</button>
             <button class="px-4 py-2 bg-blue-500 text-white rounded-md ml-4" on:click={toggleLoginModal}>Login</button>
             <button class="px-4 py-2 bg-orange-500 text-white rounded-md ml-4" on:click={togglePinCodeModal}>Pin Code</button>
