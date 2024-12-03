@@ -78,15 +78,16 @@ Create `.env` files in both the frontend and backend directories. You will need 
 - **Backend** (in `backend/.env`):
 
   ```env
-  DB_HOST=localhost
-  DB_USER=your_db_user
-  DB_PASS=your_db_password
-  DB_NAME=your_db_name
-  DB_PORT=5432  # or 3306 for MySQL
+  PGHOST=localhost
+  PGUSER=your_db_user
+  PGPASSWORD=your_db_password
+  PGDATABASE=your_db_name
+  PGPORT=5432  
   SANITY_PROJECT_ID=your_sanity_project_id
   SANITY_DATASET=your_sanity_dataset
+  SANITY_TOKEN = sanity_token
   ```
-
+*to get sanity token go to api token under api
 If you're using a cloud database, replace the local database values with your cloud database credentials.
 
 ### 4. Set Up the Database
@@ -138,16 +139,6 @@ Now you’re ready to run both the backend and frontend locally.
 
 ---
 
-## Running Tests
-
-If your project includes tests, you can run them with:
-
-```bash
-npm test
-```
-
----
-
 ## Deployment
 
 To deploy the project to the cloud, you can use services like **Vercel** for the frontend and **Render** or **Heroku** for the backend and PostgreSQL database.
@@ -157,6 +148,7 @@ To deploy the project to the cloud, you can use services like **Vercel** for the
 1. Push the `frontend` folder to a GitHub repository.
 2. Connect the GitHub repository to Vercel.
 3. Set the `VITE_API_URL` environment variable in the Vercel dashboard to point to the backend API URL.
+4. create a cloud hosted sql on nano
 
 ### Deploying the Backend on Render/Heroku:
 
@@ -168,7 +160,7 @@ To deploy the project to the cloud, you can use services like **Vercel** for the
 
 ## License
 
-Include your project’s license here.
+open source
 
 ---
 
