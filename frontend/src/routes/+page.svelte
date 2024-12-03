@@ -1,7 +1,7 @@
 <script>
     import { client } from '../sanityClient.js';
     import { onMount } from 'svelte';
-    const apiUrl = import.meta.env.VITE_API_URL;
+
 
     let survey = null;
     let responses = {};
@@ -399,4 +399,3 @@
         Submit
     </button>
 {/if}
-hellloos
