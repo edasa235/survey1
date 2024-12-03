@@ -1,4 +1,3 @@
-Here’s a README template tailored to your survey creator project that uses SvelteKit, Node Express, PostgreSQL, Sanity CMS, and Tailwind CSS:
 
 ---
 
@@ -44,7 +43,7 @@ Before getting started, make sure you have the following installed:
 Clone the project to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/survey-creator.git
+git clone (https://github.com/edasa235/survey1.git)
 cd survey-creator
 ```
 
@@ -173,4 +172,4 @@ Include your project’s license here.
 
 ---
 
-This README provides clear instructions for setting up the project locally, with details on how to run both the frontend and backend. You can adjust it to fit any other deployment steps or custom features in your project.
+
