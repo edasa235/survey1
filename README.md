@@ -134,7 +134,8 @@ Now you’re ready to run both the backend and frontend locally.
 
 ## Usage
 
-- **Admin Dashboard**: Admins can log in to create new surveys, manage existing surveys, and view responses.
+- **Admin Dashboard WIP**: Admins can log in to create new surveys, manage existing surveys, and view responses.
+- **Sanity CMS as admin dashboard*  i plan to migrate from sanity because limitations
 - **Survey Page**: Users can navigate to the survey link, fill out the survey, and submit their responses.
 
 ---
