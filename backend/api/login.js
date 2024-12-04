@@ -1,16 +1,22 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import { getConnection } from './db.js';
-
-const app = express();
-app.get('/', (req, res) => {
-	res.send('Welcome to the Express Server!');
-});
+import validator from 'validator';
 
 const router = express.Router();
 
+// Login route
 router.post('/', async (req, res) => {
 	const { username, password } = req.body;
+
+	// Validate the username and password
+	if (!validator.isAlphanumeric(username) || username.length < 3 || username.length > 20) {
+		return res.status(400).json({ error: 'Username must be alphanumeric and between 3 and 20 characters long.' });
+	}
+
+	if (!validator.isLength(password, { min: 6 })) {
+		return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+	}
 
 	try {
 		const client = await getConnection();

@@ -1,27 +1,28 @@
 import express from 'express';
-
+import bcrypt from 'bcrypt';
 import { getConnection } from './db.js';
-import bcrypt from 'bcrypt'
-
-const app = express();
-app.get('/', (req, res) => {
-	res.send('Welcome to the Express Server!');
-});
+import validator from 'validator';
 
 const router = express.Router();
 
+// Registration route
 router.post('/', async (req, res) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
 	const { username, password } = req.body;
+
+	// Validate the username and password
+	if (!validator.isAlphanumeric(username) || username.length < 3 || username.length > 20) {
+		return res.status(400).json({ error: 'Username must be alphanumeric and between 3 and 20 characters long.' });
+	}
+
+	if (!validator.isLength(password, { min: 6 })) {
+		return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+	}
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const client = await getConnection();
 
-		// First, insert the user without RETURNING clause
+		// Insert the user into the database
 		await client.query(
 			'INSERT INTO users (username, password) VALUES ($1, $2);',
 			[username, hashedPassword]
@@ -35,15 +36,12 @@ router.post('/', async (req, res) => {
 		client.release();
 
 		if (result.rows && result.rows.length > 0) {
-			res.status(201).json({ id: result.rows[0].user_id, username }); // Adjusted to use `user_id` instead of `id`
+			res.status(201).json({ id: result.rows[0].user_id, username });
 		}
 	} catch (error) {
 		console.error('Registration Error:', error);
 		res.status(500).json({ error: 'Registration failed' });
 	}
-});
-app.get('/', (req, res) => {
-	res.send('Welcome to the Express Server!');
 });
 
 export default router;
